@@ -20,7 +20,6 @@
         .form-input { border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; width: 100%; margin-bottom: 15px; background: white; outline: none; }
         .form-input:focus { border-color: #bc986a; box-shadow: 0 0 0 3px rgba(188, 152, 106, 0.2); }
         
-        /* אנימציית טעינה */
         .loader { width: 48px; height: 48px; border: 5px solid #bc986a; border-bottom-color: transparent; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -75,7 +74,7 @@
                 <p class="text-[#bc986a] font-medium text-lg italic">מתעדכן בזמן אמת מהנגרייה</p>
             </div>
             
-            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px] flex items-center justify-center">
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
                 <div class="col-span-full text-center">
                     <span class="loader"></span>
                     <p class="mt-4 text-gray-500">טוען מוצרים...</p>
@@ -100,7 +99,7 @@
             </div>
 
             <div class="bg-[#fcfaf7] p-10 rounded-3xl shadow-2xl border border-gray-100" data-aos="fade-right">
-                <form action="https://formspree.io/f/YOUR_ID" method="POST">
+                <form action="https://formspree.io/f/meevgjrr" method="POST">
                     <div class="mb-4">
                         <label class="block text-sm font-bold mb-2">שם מלא</label>
                         <input type="text" name="name" class="form-input" placeholder="ישראל ישראלי" required>
@@ -133,15 +132,12 @@
     <script>
         AOS.init({ duration: 1000, once: true });
 
-        // קישור ה-TSV שסיפקת
         const TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtyoe510f5vB5u1jW6b_VdZaCl2N_5IMO3i07jQB6P7YOtadif2C2otzqmWS5o34E-pIXDHVfX0fdf/pub?output=tsv';
 
         async function loadCatalog() {
             try {
                 const response = await fetch(TSV_URL);
                 const data = await response.text();
-                
-                // פירוק הנתונים לפי טאבים (\t) במקום פסיקים
                 const rows = data.split('\n').slice(1); 
                 const grid = document.getElementById('product-grid');
                 grid.innerHTML = ''; 
@@ -150,7 +146,6 @@
                     const columns = row.split('\t');
                     if (columns.length >= 4) {
                         const [name, price, description, imageUrl] = columns;
-                        
                         grid.innerHTML += `
                             <div class="wood-card p-4" data-aos="zoom-in">
                                 <img src="${imageUrl.trim()}" class="w-full h-72 object-cover rounded-xl mb-5 shadow-sm" alt="${name}">
@@ -165,8 +160,8 @@
                     }
                 });
             } catch (error) {
-                console.error("שגיאה בטעינת הקטלוג:", error);
-                document.getElementById('product-grid').innerHTML = '<p class="text-center col-span-full text-red-500">חלה שגיאה בטעינת המוצרים. אנא נסה שוב מאוחר יותר.</p>';
+                console.error("שגיאה:", error);
+                document.getElementById('product-grid').innerHTML = '<p class="text-center col-span-full">העלה את האתר לגיטהאב כדי לראות את הקטלוג.</p>';
             }
         }
 
