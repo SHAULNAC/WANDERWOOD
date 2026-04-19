@@ -32,7 +32,8 @@
         .dot.active { background: #bc986a; width: 18px; border-radius: 4px; }
 
         .modal-overlay { background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); }
-        .modal-image { width: 100%; max-height: 420px; object-fit: cover; border-radius: 1rem; }
+        .modal-image-frame { width: 100%; height: 420px; background: #f8f5f1; border-radius: 1rem; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; }
+        .modal-image { width: 100%; height: 100%; object-fit: contain; }
         .order-chip { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; gap: 10px; }
         .footer-brand { position: relative; overflow: hidden; }
         .footer-bg-icon {
@@ -82,6 +83,7 @@
     <ul class="hidden md:flex gap-8 font-medium">
         <li><a href="#collection" class="smooth-link hover:text-[#bc986a] transition">קולקציה</a></li>
         <li><a href="#features" class="smooth-link hover:text-[#bc986a] transition">למה אנחנו?</a></li>
+        <li><a href="#about" class="smooth-link hover:text-[#bc986a] transition">קצת עליי</a></li>
         <li><a href="#order-form" class="smooth-link hover:text-[#bc986a] transition">הזמנה אישית</a></li>
     </ul>
     <a href="#order-form" class="smooth-link border border-white px-6 py-2 rounded-full hover:bg-[#bc986a] hover:border-[#bc986a] transition">צור קשר</a>
@@ -135,11 +137,33 @@
 </section>
     
 
+<section id="about" class="py-24 px-6 md:px-12 bg-white">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-10">
+            <h2 class="text-4xl font-bold mb-4">קצת עליי</h2>
+            <p class="text-[#bc986a] text-xl font-medium">ממחשבה למציאות: הנדסה יצירתית בעץ</p>
+        </div>
+        <div class="bg-[#fcfaf7] border border-[#efe7dc] rounded-3xl p-8 md:p-12 text-right leading-loose text-lg text-[#4b3a2d] space-y-6">
+            <p>ב-WANDERWOOD אני מאמינה שמוצר טוב באמת נמדד בפרטים הקטנים: בקלות שבה הוא מתקפל, בחוזק שלו מול פגעי הזמן, וביופי שהוא מוסיף לסביבה שלו.</p>
+            <div>
+                <p class="font-bold mb-2">הערכים שמובילים אותי בסדנה:</p>
+                <ul class="space-y-4">
+                    <li><span class="font-bold">פשטות גאונית:</span> המטרה שלי היא לייצר מוצרים ש"עובדים בשבילך". פטנטים של קיפול ופתיחה מהירה שמתאימים במיוחד לצלמות שזקוקות לציוד קל ונייד, גם כשהן בדרכים או בתחבורה ציבורית.</li>
+                    <li><span class="font-bold">עמידות לאורך זמן:</span> אני לא מתפשר על איכות. כל מוצר מתוכנן לשרוד נשיאות, מעברים ועבודה אינטנסיבית בשטח.</li>
+                    <li><span class="font-bold">התאמה אישית מלאה:</span> המותג שלי מבוסס על הקשבה. אין מלאי מוכן מראש – כל הזמנה היא פרויקט חדש שנבנה בדיוק לפי המידות והדרישות שלך, כדי להבטיח שהתוצאה תהיה בדיוק מה שחיפשת.</li>
+                </ul>
+            </div>
+            <p class="font-medium">מחיר נגיש, עיצוב טבעי וגאונות טכנית – הכל במוצר אחד שנתפר עבורך.</p>
+        </div>
+    </div>
+</section>
+
 <section id="collection" class="bg-[#fcfaf7] py-24 px-6 md:px-12">
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <h2 class="text-4xl font-bold mb-2">הקולקציה שלנו</h2>
             <p class="text-[#bc986a] font-medium text-lg italic">מתעדכן בזמן אמת מהנגרייה</p>
+            <p class="mt-4 text-sm md:text-base text-gray-500 max-w-3xl mx-auto">המחירים באתר הם אינדיקציה כללית בלבד. המחיר הסופי גמיש ומושפע מפרמטרים טכניים משתנים וממורכבות העבודה.</p>
         </div>
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
             <div class="col-span-full text-center">
@@ -223,7 +247,9 @@
         <button id="close-modal" class="absolute top-4 left-4 text-gray-500 hover:text-black text-3xl leading-none">&times;</button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <div>
-                <img id="modal-main-image" class="modal-image mb-4" src="" alt="תצוגת מוצר">
+                <div class="modal-image-frame">
+                    <img id="modal-main-image" class="modal-image" src="" alt="תצוגת מוצר">
+                </div>
                 <div class="flex justify-between gap-3">
                     <button id="modal-prev" class="flex-1 bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition">תמונה קודמת</button>
                     <button id="modal-next" class="flex-1 bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition">תמונה הבאה</button>
@@ -304,8 +330,7 @@
                             <div class="dots-container">${dotsHtml}</div>
                         </div>
                         <h4 class="text-xl font-bold mb-1">${product.name}</h4>
-                        <p class="text-gray-400 text-sm mb-4 italic h-10 overflow-hidden">${product.description}</p>
-                        <div class="flex justify-between items-center gap-3">
+                                                <div class="flex justify-between items-center gap-3">
                             <span class="text-xl font-bold text-[#3d2b1f]">₪${product.price}</span>
                             <div class="flex gap-2">
                                 <button class="open-product-modal bg-white border border-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition" data-product-index="${index}">פרטים</button>
