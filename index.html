@@ -32,8 +32,63 @@
         .dot.active { background: #bc986a; width: 18px; border-radius: 4px; }
 
         .modal-overlay { background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); }
-        .modal-image { width: 100%; max-height: 420px; object-fit: cover; border-radius: 1rem; }
+        .modal-panel { height: min(88vh, 760px); display: flex; flex-direction: column; }
+        .modal-content-grid { flex: 1; min-height: 0; }
+        .modal-image-frame { position: relative; width: 100%; height: 420px; background: #f8f5f1; border-radius: 1rem; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 0.8rem; }
+        .modal-image { width: 100%; height: 100%; object-fit: contain; }
+        .modal-side-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 999px; border: none; background: rgba(255,255,255,0.9); box-shadow: 0 8px 20px rgba(0,0,0,0.15); color: #3d2b1f; font-size: 1.25rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .modal-side-nav:hover { background: #bc986a; color: #fff; }
+        .modal-side-nav.prev { right: 12px; }
+        .modal-side-nav.next { left: 12px; }
+        .modal-thumbs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; }
+        .modal-thumbs::-webkit-scrollbar { height: 7px; }
+        .modal-thumbs::-webkit-scrollbar-thumb { background: #d7c2a5; border-radius: 999px; }
+        .modal-thumb { flex: 0 0 74px; width: 74px; height: 74px; border-radius: 0.7rem; border: 2px solid transparent; object-fit: cover; cursor: pointer; opacity: 0.8; transition: 0.2s; }
+        .modal-thumb:hover { opacity: 1; }
+        .modal-thumb.active { border-color: #bc986a; opacity: 1; box-shadow: 0 8px 20px rgba(188,152,106,0.3); }
+        .modal-description { white-space: pre-line; max-height: 180px; overflow-y: auto; padding-left: 6px; line-height: 1.8; text-align: right; }
         .order-chip { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; gap: 10px; }
+        .order-chip-actions { display: flex; align-items: center; gap: 8px; }
+        .qty-btn { width: 30px; height: 30px; border-radius: 999px; border: 1px solid #d1d5db; background: #fff; font-weight: 700; transition: 0.2s; }
+        .qty-btn:hover { background: #f3f4f6; border-color: #bc986a; }
+        .remove-btn { border: 1px solid #fecaca; color: #b91c1c; background: #fff1f2; border-radius: 999px; padding: 4px 10px; font-size: 12px; transition: 0.2s; }
+        .remove-btn:hover { background: #ffe4e6; }
+        .about-card { background: linear-gradient(145deg, #fff, #f9f4ee); border: 1px solid #efe7dc; border-radius: 1.5rem; box-shadow: 0 15px 35px rgba(61, 43, 31, 0.08); }
+        .about-value { background: #fff; border: 1px solid #eee2d3; border-radius: 1rem; padding: 1rem; }
+        .about-image { border-radius: 1.25rem; object-fit: cover; width: 100%; height: 100%; min-height: 220px; box-shadow: 0 20px 35px rgba(61,43,31,0.14); }
+        .screwed-panel { position: relative; }
+        .screw {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 30%, #f7f7f7, #c7c7c7 42%, #8e8e8e 100%);
+            border: 1px solid #7a7a7a;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            z-index: 30;
+            animation: screwIn 1s ease-out both;
+        }
+        .screw::before,
+        .screw::after {
+            content: '';
+            position: absolute;
+            background: rgba(80, 80, 80, 0.9);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 2px;
+        }
+        .screw::before { width: 10px; height: 2px; }
+        .screw::after { width: 2px; height: 10px; }
+        .screw-tl { top: 8px; left: 8px; }
+        .screw-tr { top: 8px; right: 8px; animation-delay: 0.08s; }
+        .screw-bl { bottom: 8px; left: 8px; animation-delay: 0.16s; }
+        .screw-br { bottom: 8px; right: 8px; animation-delay: 0.24s; }
+        @keyframes screwIn {
+            0% { transform: rotate(-900deg) scale(0.45); opacity: 0; }
+            70% { transform: rotate(30deg) scale(1.06); opacity: 1; }
+            100% { transform: rotate(0deg) scale(1); opacity: 1; }
+        }
         .footer-brand { position: relative; overflow: hidden; }
         .footer-bg-icon {
             position: absolute;
@@ -82,6 +137,7 @@
     <ul class="hidden md:flex gap-8 font-medium">
         <li><a href="#collection" class="smooth-link hover:text-[#bc986a] transition">קולקציה</a></li>
         <li><a href="#features" class="smooth-link hover:text-[#bc986a] transition">למה אנחנו?</a></li>
+        <li><a href="#about" class="smooth-link hover:text-[#bc986a] transition">קצת עליי</a></li>
         <li><a href="#order-form" class="smooth-link hover:text-[#bc986a] transition">הזמנה אישית</a></li>
     </ul>
     <a href="#order-form" class="smooth-link border border-white px-6 py-2 rounded-full hover:bg-[#bc986a] hover:border-[#bc986a] transition">צור קשר</a>
@@ -94,6 +150,42 @@
         <div class="flex flex-col md:flex-row gap-4 justify-center">
             <a href="#collection" class="smooth-link btn-gold px-10 py-4 text-lg font-bold shadow-lg">צפה בקולקציה</a>
             <a href="#order-form" class="smooth-link bg-white text-black px-10 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition shadow-lg">הזמנה לפי מידה</a>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="py-24 px-6 md:px-12 bg-white">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-10" data-aos="fade-up">
+            <div class="flex justify-center mb-4">
+                <img src="favicon.png" alt="WanderWood icon" class="w-16 h-16 object-contain drop-shadow-md">
+            </div>
+            <h2 class="text-4xl font-bold mb-4">קצת עליי</h2>
+            <p class="text-[#bc986a] text-xl font-medium">ממחשבה למציאות: הנדסה יצירתית בעץ</p>
+        </div>
+        <div class="about-card screwed-panel p-8 md:p-12 text-right leading-loose text-lg text-[#4b3a2d] space-y-8" data-aos="fade-up" data-aos-delay="120">
+            <span class="screw screw-tl" aria-hidden="true"></span>
+            <span class="screw screw-tr" aria-hidden="true"></span>
+            <span class="screw screw-bl" aria-hidden="true"></span>
+            <span class="screw screw-br" aria-hidden="true"></span>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                <div class="lg:col-span-2 space-y-6">
+                    <p>ב-WANDERWOOD אני מאמינה שמוצר טוב באמת נמדד בפרטים הקטנים: בקלות שבה הוא מתקפל, בחוזק שלו מול פגעי הזמן, וביופי שהוא מוסיף לסביבה שלו.</p>
+                    <div>
+                        <p class="font-bold mb-3">הערכים שמובילים אותי בסדנה:</p>
+                        <ul class="space-y-4">
+                            <li class="about-value" data-aos="fade-left"><span class="font-bold">פשטות גאונית:</span> המטרה שלי היא לייצר מוצרים ש"עובדים בשבילך". פטנטים של קיפול ופתיחה מהירה שמתאימים במיוחד לצלמות שזקוקות לציוד קל ונייד, גם כשהן בדרכים או בתחבורה ציבורית.</li>
+                            <li class="about-value" data-aos="fade-left" data-aos-delay="100"><span class="font-bold">עמידות לאורך זמן:</span> אני לא מתפשרת על איכות. כל מוצר מתוכנן לשרוד נשיאות, מעברים ועבודה אינטנסיבית בשטח.</li>
+                            <li class="about-value" data-aos="fade-left" data-aos-delay="200"><span class="font-bold">התאמה אישית מלאה:</span> המותג שלי מבוסס על הקשבה. אין מלאי מוכן מראש – כל הזמנה היא פרויקט חדש שנבנה בדיוק לפי המידות והדרישות שלך, כדי להבטיח שהתוצאה תהיה בדיוק מה שחיפשת.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <img class="about-image" data-aos="zoom-in" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80" alt="נגרות בעץ">
+                    <img class="about-image" data-aos="zoom-in" data-aos-delay="120" src="https://images.unsplash.com/photo-1452160392676-5e712e73f522?auto=format&fit=crop&w=900&q=80" alt="מלאכת יד בעץ">
+                </div>
+            </div>
+            <p class="font-medium">מחיר נגיש, עיצוב טבעי וגאונות טכנית – הכל במוצר אחד שנתפר עבורך.</p>
         </div>
     </div>
 </section>
@@ -133,13 +225,13 @@
 
     </div>
 </section>
-    
 
 <section id="collection" class="bg-[#fcfaf7] py-24 px-6 md:px-12">
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <h2 class="text-4xl font-bold mb-2">הקולקציה שלנו</h2>
             <p class="text-[#bc986a] font-medium text-lg italic">מתעדכן בזמן אמת מהנגרייה</p>
+            <p class="mt-4 text-sm md:text-base text-gray-500 max-w-3xl mx-auto">המחירים באתר הם אינדיקציה כללית בלבד. המחיר הסופי גמיש ומושפע מפרמטרים טכניים משתנים וממורכבות העבודה.</p>
         </div>
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
             <div class="col-span-full text-center">
@@ -167,7 +259,11 @@
             </div>
         </div>
 
-        <div class="bg-[#fcfaf7] p-10 rounded-3xl shadow-2xl border border-gray-100" data-aos="fade-right">
+        <div class="bg-[#fcfaf7] p-10 rounded-3xl shadow-2xl border border-gray-100 screwed-panel" data-aos="fade-right">
+            <span class="screw screw-tl" aria-hidden="true"></span>
+            <span class="screw screw-tr" aria-hidden="true"></span>
+            <span class="screw screw-bl" aria-hidden="true"></span>
+            <span class="screw screw-br" aria-hidden="true"></span>
             <form action="https://formspree.io/f/meevgjrr" method="POST">
                 <div class="mb-4">
                     <label class="block text-sm font-bold mb-2">שם מלא</label>
@@ -219,19 +315,20 @@
 
 <div id="product-modal" class="fixed inset-0 z-[100] hidden items-center justify-center px-4">
     <div class="modal-overlay absolute inset-0"></div>
-    <div class="relative bg-white rounded-3xl w-full max-w-4xl p-6 md:p-8 shadow-2xl z-10">
+    <div class="relative bg-white rounded-3xl w-full max-w-4xl p-6 md:p-8 shadow-2xl z-10 modal-panel">
         <button id="close-modal" class="absolute top-4 left-4 text-gray-500 hover:text-black text-3xl leading-none">&times;</button>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start modal-content-grid">
             <div>
-                <img id="modal-main-image" class="modal-image mb-4" src="" alt="תצוגת מוצר">
-                <div class="flex justify-between gap-3">
-                    <button id="modal-prev" class="flex-1 bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition">תמונה קודמת</button>
-                    <button id="modal-next" class="flex-1 bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition">תמונה הבאה</button>
+                <div class="modal-image-frame">
+                    <img id="modal-main-image" class="modal-image" src="" alt="תצוגת מוצר">
+                    <button id="modal-prev" class="modal-side-nav prev" aria-label="תמונה קודמת">‹</button>
+                    <button id="modal-next" class="modal-side-nav next" aria-label="תמונה הבאה">›</button>
                 </div>
+                <div id="modal-thumbnails" class="modal-thumbs" aria-label="תמונות מוצר נוספות"></div>
             </div>
             <div>
                 <h3 id="modal-title" class="text-3xl font-bold mb-2"></h3>
-                <p id="modal-description" class="text-gray-600 mb-6 leading-relaxed"></p>
+                <p id="modal-description" class="modal-description text-gray-600 mb-6"></p>
                 <div class="text-2xl font-bold mb-6 text-[#bc986a]" id="modal-price"></div>
                 <button id="modal-add" class="w-full btn-gold py-3 font-bold">הוסף להזמנה</button>
             </div>
@@ -298,14 +395,17 @@
                     : '';
 
                 return `
-                    <div class="wood-card p-4" data-aos="zoom-in" data-product-index="${index}">
+                    <div class="wood-card screwed-panel p-4" data-aos="zoom-in" data-product-index="${index}">
+                        <span class="screw screw-tl" aria-hidden="true"></span>
+                        <span class="screw screw-tr" aria-hidden="true"></span>
+                        <span class="screw screw-bl" aria-hidden="true"></span>
+                        <span class="screw screw-br" aria-hidden="true"></span>
                         <div class="gallery-container mb-5 open-product-modal cursor-pointer" data-product-index="${index}">
                             ${imagesHtml}
                             <div class="dots-container">${dotsHtml}</div>
                         </div>
                         <h4 class="text-xl font-bold mb-1">${product.name}</h4>
-                        <p class="text-gray-400 text-sm mb-4 italic h-10 overflow-hidden">${product.description}</p>
-                        <div class="flex justify-between items-center gap-3">
+                                                <div class="flex justify-between items-center gap-3">
                             <span class="text-xl font-bold text-[#3d2b1f]">₪${product.price}</span>
                             <div class="flex gap-2">
                                 <button class="open-product-modal bg-white border border-gray-300 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition" data-product-index="${index}">פרטים</button>
@@ -380,6 +480,24 @@
         const imageElement = document.getElementById('modal-main-image');
         imageElement.src = currentImage;
         imageElement.alt = `${product.name} - תמונה ${modalImageIndex + 1}`;
+        updateModalThumbs();
+    }
+
+    function updateModalThumbs() {
+        const product = productCatalog[modalProductIndex];
+        const thumbsContainer = document.getElementById('modal-thumbnails');
+        if (!product || !thumbsContainer) return;
+
+        thumbsContainer.innerHTML = product.images.map((img, i) => `
+            <img src="${img}" alt="${product.name} תמונה ${i + 1}" class="modal-thumb ${i === modalImageIndex ? 'active' : ''}" data-thumb-index="${i}">
+        `).join('');
+
+        thumbsContainer.querySelectorAll('.modal-thumb').forEach((thumb) => {
+            thumb.addEventListener('click', () => {
+                modalImageIndex = Number(thumb.dataset.thumbIndex);
+                updateModalImage();
+            });
+        });
     }
 
     function changeModalImage(step) {
@@ -399,6 +517,24 @@
 
         const orderSection = document.getElementById('order-form');
         orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function changeOrderQty(productId, delta) {
+        const item = orderState.get(productId);
+        if (!item) return;
+        const nextQty = item.qty + delta;
+        if (nextQty <= 0) {
+            orderState.delete(productId);
+        } else {
+            orderState.set(productId, { ...item, qty: nextQty });
+        }
+        updateOrderSummary();
+    }
+
+    function removeFromOrder(productId) {
+        if (!orderState.has(productId)) return;
+        orderState.delete(productId);
+        updateOrderSummary();
     }
 
     function updateOrderSummary() {
@@ -428,7 +564,18 @@
 
             const chip = document.createElement('div');
             chip.className = 'order-chip';
-            chip.innerHTML = `<span>${item.name} × ${item.qty}</span><span class="font-bold">₪${lineTotal}</span>`;
+            chip.innerHTML = `
+                <div>
+                    <div class="font-medium">${item.name}</div>
+                    <div class="order-chip-actions mt-1">
+                        <button type="button" class="qty-btn order-dec" data-product-id="${item.id}" aria-label="הפחת כמות">-</button>
+                        <span class="min-w-[22px] text-center font-bold">${item.qty}</span>
+                        <button type="button" class="qty-btn order-inc" data-product-id="${item.id}" aria-label="הגדל כמות">+</button>
+                        <button type="button" class="remove-btn order-remove" data-product-id="${item.id}">הסר</button>
+                    </div>
+                </div>
+                <span class="font-bold">₪${lineTotal}</span>
+            `;
             orderItemsContainer.appendChild(chip);
         });
 
@@ -436,6 +583,24 @@
         productsDetailsInput.value = detailParts.join(' | ');
         orderTotalInput.value = String(total);
         totalElement.textContent = `₪${total}`;
+    }
+
+    function bindOrderControls() {
+        const orderItemsContainer = document.getElementById('order-items');
+        orderItemsContainer.addEventListener('click', (event) => {
+            const target = event.target.closest('button');
+            if (!target) return;
+            const productId = target.dataset.productId;
+            if (!productId) return;
+
+            if (target.classList.contains('order-inc')) {
+                changeOrderQty(productId, 1);
+            } else if (target.classList.contains('order-dec')) {
+                changeOrderQty(productId, -1);
+            } else if (target.classList.contains('order-remove')) {
+                removeFromOrder(productId);
+            }
+        });
     }
 
     function bindModalEvents() {
@@ -474,6 +639,7 @@
 
     bindSmoothScroll();
     bindModalEvents();
+    bindOrderControls();
     loadCatalog();
 </script>
 </body>
