@@ -320,7 +320,9 @@
 
                 const [nameRaw, priceRaw, descriptionRaw, imageUrlsRaw] = columns;
                 const name = (nameRaw || '').trim();
-                const description = (descriptionRaw || '').trim();
+                const description = (descriptionRaw || '')
+    .trim()
+    .replace(/\s\s+/g, '\n');
                 const numericPrice = Number((priceRaw || '').replace(/[^\d.]/g, '')) || 0;
                 const images = (imageUrlsRaw || '')
                     .split(',')
