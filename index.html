@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.17/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.17/vfs_fonts.min.js"></script>
     <style>
         body { font-family: 'Assistant', sans-serif; background-color: #fcfaf7; color: #3d2b1f; }
         .hero-gradient {
@@ -322,7 +320,6 @@
     let modalProductIndex = -1;
     let modalImageIndex = 0;
     const contactPhone = '055678385';
-    let pdfEngineReadyPromise = null;
 
     async function loadCatalog() {
         try {
@@ -612,76 +609,96 @@
         });
     }
 
-    async function imageUrlToDataUrl(url) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Image fetch failed');
-            const blob = await response.blob();
-            return await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-        } catch (error) {
-            console.warn('לא ניתן לטעון תמונה ל-PDF', url, error);
-            return null;
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function renderImageGrid(images, cols = 3) {
+        return `
+            <div class="image-grid cols-${cols}">
+                ${images.map((img, i) => `
+                    <img src="${escapeHtml(img)}" alt="תמונת מוצר ${i + 1}" loading="eager">
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderProductLayout(product, productIndex) {
+        const layoutType = productIndex % 4;
+        const name = escapeHtml(product.name);
+        const price = `₪${product.price}`;
+        const description = escapeHtml(product.description || 'ללא תיאור נוסף').replace(/\n/g, '<br>');
+        const images = (product.images && product.images.length ? product.images : ['https://placehold.co/900x900?text=WanderWood'])
+            .map((img) => escapeHtml(img));
+        const mainImage = images[0];
+        const extraImages = images.slice(1);
+        const allImages = images;
+
+        if (layoutType === 0) {
+            return `
+                <article class="product-block layout-a">
+                    <img class="watermark" src="favicon.png" alt="">
+                    <div class="hero-media">
+                        <img src="${mainImage}" alt="${name}">
+                    </div>
+                    <div class="hero-copy">
+                        <h2>${name}</h2>
+                        <p class="price">${price}</p>
+                        <p class="description">${description}</p>
+                        ${renderImageGrid(extraImages.length ? extraImages : allImages, 3)}
+                    </div>
+                </article>
+            `;
         }
-    }
 
-    function loadScript(src) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.async = true;
-            script.onload = resolve;
-            script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-            document.head.appendChild(script);
-        });
-    }
-
-    async function ensurePdfEngineLoaded() {
-        if (window.pdfMake?.createPdf) return window.pdfMake;
-        if (!pdfEngineReadyPromise) {
-            pdfEngineReadyPromise = (async () => {
-                const providerPairs = [
-                    [
-                        'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.17/pdfmake.min.js',
-                        'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.17/vfs_fonts.min.js'
-                    ],
-                    [
-                        'https://unpkg.com/pdfmake@0.2.17/build/pdfmake.min.js',
-                        'https://unpkg.com/pdfmake@0.2.17/build/vfs_fonts.js'
-                    ]
-                ];
-
-                for (const [pdfCore, pdfFonts] of providerPairs) {
-                    try {
-                        if (!window.pdfMake?.createPdf) {
-                            await loadScript(pdfCore);
-                        }
-                        if (!window.pdfMake?.vfs) {
-                            await loadScript(pdfFonts);
-                        }
-                        if (window.pdfMake?.createPdf) return window.pdfMake;
-                    } catch (error) {
-                        console.warn('טעינת מנוע PDF נכשלה מספק אחד, מנסה ספק נוסף.', error);
-                    }
-                }
-                throw new Error('pdfMake failed to load from all configured CDNs');
-            })();
+        if (layoutType === 1) {
+            return `
+                <article class="product-block layout-b">
+                    <img class="watermark" src="favicon.png" alt="">
+                    <div class="top-copy">
+                        <h2>${name}</h2>
+                        <p class="price">${price}</p>
+                        <p class="description">${description}</p>
+                    </div>
+                    ${renderImageGrid(allImages, 3)}
+                </article>
+            `;
         }
-        return pdfEngineReadyPromise;
-    }
 
-    function renderPdfFooter(currentPage, pageCount) {
-        return {
-            margin: [30, 14, 30, 10],
-            columns: [
-                { text: `WanderWood | ${contactPhone}`, color: '#6f543f', fontSize: 9, alignment: 'left' },
-                { text: `עמוד ${currentPage} מתוך ${pageCount}`, color: '#6f543f', fontSize: 9, alignment: 'right' }
-            ]
-        };
+        if (layoutType === 2) {
+            return `
+                <article class="product-block layout-c">
+                    <img class="watermark" src="favicon.png" alt="">
+                    <aside class="modern-side">
+                        <h2>${name}</h2>
+                        <p class="price">${price}</p>
+                        <p class="description">${description}</p>
+                        ${renderImageGrid(allImages, 4)}
+                    </aside>
+                    <div class="modern-art">
+                        <img src="${mainImage}" alt="${name}">
+                    </div>
+                </article>
+            `;
+        }
+
+        return `
+            <article class="product-block layout-d">
+                <img class="watermark" src="favicon.png" alt="">
+                <h2>${name}</h2>
+                <p class="price">${price}</p>
+                <div class="minimal-main">
+                    <img src="${mainImage}" alt="${name}">
+                </div>
+                <p class="description">${description}</p>
+                ${renderImageGrid(allImages, 4)}
+            </article>
+        `;
     }
 
     async function generateCatalogPdf() {
@@ -695,100 +712,116 @@
 
         button.disabled = true;
         const defaultText = button.textContent;
-        button.textContent = 'מכין קטלוג...';
+        button.textContent = 'מכין קטלוג להדפסה...';
 
         try {
-            const pdfEngine = await ensurePdfEngineLoaded();
             const now = new Date();
-            const dateText = now.toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
-            const content = [
-                {
-                    table: {
-                        widths: ['*'],
-                        body: [[{
-                            stack: [
-                                { text: 'WanderWood', fontSize: 36, bold: true, color: '#3d2b1f', alignment: 'center', margin: [0, 0, 0, 8] },
-                                { text: 'קטלוג מוצרים מעודכן', fontSize: 20, color: '#bc986a', alignment: 'center', margin: [0, 0, 0, 8] },
-                                { text: `תאריך הורדה: ${dateText}`, fontSize: 12, color: '#4b3a2d', alignment: 'center', margin: [0, 0, 0, 4] },
-                                { text: `טלפון להזמנות: ${contactPhone}`, fontSize: 12, color: '#4b3a2d', alignment: 'center' }
-                            ],
-                            fillColor: '#f7efe6',
-                            margin: [16, 30, 16, 30],
-                            border: [false, false, false, false]
-                        }]]
-                    },
-                    layout: {
-                        hLineWidth: () => 0,
-                        vLineWidth: () => 0
-                    },
-                    margin: [0, 0, 0, 20]
-                }
-            ];
-
-            for (const product of productCatalog) {
-                const mainImage = product.images?.[0];
-                const imageData = mainImage ? await imageUrlToDataUrl(mainImage) : null;
-
-                const productBlock = {
-                    table: {
-                        widths: [170, '*'],
-                        body: [[
-                            imageData ? {
-                                image: imageData,
-                                fit: [160, 120],
-                                alignment: 'center',
-                                margin: [0, 0, 0, 0]
-                            } : {
-                                stack: [
-                                    { text: 'תמונה לא זמינה', alignment: 'center', color: '#9ca3af', margin: [0, 42, 0, 6] },
-                                    { canvas: [{ type: 'rect', x: 10, y: 0, w: 140, h: 70, r: 6, lineColor: '#d1d5db' }] }
-                                ]
-                            },
-                            {
-                                stack: [
-                                    { text: product.name, fontSize: 18, bold: true, color: '#3d2b1f', alignment: 'right', margin: [0, 0, 0, 6] },
-                                    { text: `₪${product.price}`, fontSize: 15, bold: true, color: '#bc986a', alignment: 'right', margin: [0, 0, 0, 8] },
-                                    { text: product.description || 'ללא תיאור נוסף.', fontSize: 11, color: '#4b5563', alignment: 'right', lineHeight: 1.5 }
-                                ]
-                            }
-                        ]]
-                    },
-                    layout: {
-                        fillColor: () => '#ffffff',
-                        hLineColor: () => '#ebe5de',
-                        vLineColor: () => '#ebe5de',
-                        hLineWidth: () => 1,
-                        vLineWidth: () => 1,
-                        paddingLeft: () => 12,
-                        paddingRight: () => 12,
-                        paddingTop: () => 10,
-                        paddingBottom: () => 10
-                    },
-                    margin: [0, 0, 0, 14]
-                };
-
-                content.push(productBlock);
+            const website = window.location.origin;
+            const printableProducts = productCatalog.map((product, index) => renderProductLayout(product, index));
+            const pages = [];
+            for (let i = 0; i < printableProducts.length; i += 2) {
+                pages.push(`
+                    <section class="catalog-page">
+                        <img class="page-header-logo" src="favicon.png" alt="logo">
+                        ${printableProducts[i] || ''}
+                        ${printableProducts[i + 1] || '<div class="product-block empty-slot"></div>'}
+                        <footer class="page-footer">טלפון: ${contactPhone} | אתר: ${website}</footer>
+                    </section>
+                `);
             }
 
-            const docDefinition = {
-                pageSize: 'A4',
-                pageMargins: [30, 30, 30, 28],
-                background: () => ({
-                    canvas: [
-                        { type: 'rect', x: 0, y: 0, w: 595.28, h: 841.89, color: '#fcfaf7' }
-                    ]
-                }),
-                content,
-                footer: renderPdfFooter,
-                defaultStyle: {
-                    font: 'Roboto'
-                }
+            const dateText = now.toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
+            const printHtml = `
+                <!DOCTYPE html>
+                <html lang="he" dir="rtl">
+                <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>WanderWood Catalog 2026</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+                    <style>
+                        :root { --dark:#3d2b1f; --oak:#bc986a; --cream:#fcfaf7; }
+                        * { box-sizing: border-box; }
+                        body { margin:0; font-family:'Assistant','Heebo',sans-serif; background:var(--cream); color:var(--dark); }
+                        .cover-page, .catalog-page { width:210mm; min-height:297mm; margin:0 auto; position:relative; background:var(--cream); overflow:hidden; }
+                        .cover-page { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; page-break-after:always; }
+                        .cover-page img { width:88px; height:88px; object-fit:contain; margin-bottom:20px; }
+                        .cover-page h1 { font-size:56px; margin:0; letter-spacing:.4px; }
+                        .cover-page h2 { margin:14px 0 10px; color:var(--oak); font-size:30px; font-weight:700; }
+                        .cover-page p { margin:0; font-size:22px; opacity:.85; }
+                        .cover-date { margin-top:20px; font-size:15px; }
+                        .catalog-page { padding:10mm 10mm 15mm; display:grid; grid-template-rows:1fr 1fr; gap:8mm; page-break-after:always; }
+                        .page-header-logo { position:absolute; top:8mm; right:10mm; width:34px; height:34px; object-fit:contain; z-index:2; }
+                        .page-footer { position:absolute; left:10mm; right:10mm; bottom:6mm; border-top:1px solid rgba(61,43,31,.2); padding-top:3mm; color:#6b4e38; font-size:12px; text-align:center; }
+                        .product-block { position:relative; background:#fff; border:1px solid #eee2d3; border-radius:14px; padding:12px; min-height:132mm; page-break-inside:avoid; overflow:hidden; }
+                        .watermark { position:absolute; left:10px; bottom:10px; width:90px; height:90px; opacity:.05; pointer-events:none; object-fit:contain; }
+                        .product-block h2 { margin:0; font-size:30px; line-height:1.05; }
+                        .price { color:var(--oak); font-weight:800; margin:6px 0 8px; font-size:22px; }
+                        .description { font-size:14px; line-height:1.55; margin:0; white-space:normal; }
+                        .image-grid { display:grid; gap:8px; margin-top:10px; }
+                        .image-grid.cols-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+                        .image-grid.cols-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+                        .image-grid img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid #f0e7dc; }
+                        .layout-a { display:grid; grid-template-columns:1.2fr 1fr; gap:12px; }
+                        .layout-a .hero-media img { width:100%; height:100%; min-height:108mm; object-fit:cover; border-radius:10px; }
+                        .layout-a .hero-copy { display:flex; flex-direction:column; justify-content:space-between; }
+                        .layout-b { display:flex; flex-direction:column; }
+                        .layout-b .top-copy { margin-bottom:8px; }
+                        .layout-c { display:grid; grid-template-columns:.9fr 1.1fr; gap:12px; }
+                        .layout-c .modern-side { background:var(--cream); border-radius:10px; padding:10px; display:flex; flex-direction:column; }
+                        .layout-c .modern-art img { width:100%; height:100%; min-height:108mm; object-fit:cover; border-radius:10px; }
+                        .layout-d { text-align:center; }
+                        .layout-d h2 { margin-top:3px; }
+                        .layout-d .minimal-main img { width:74%; max-height:72mm; object-fit:cover; border-radius:10px; margin:0 auto; display:block; }
+                        .layout-d .description { margin-top:8px; text-align:right; }
+                        .empty-slot { opacity:0; border-style:dashed; }
+                        @page { size:A4; margin:0; }
+                        @media print {
+                            html, body { width:210mm; height:297mm; }
+                            .cover-page, .catalog-page { margin:0; box-shadow:none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <section class="cover-page">
+                        <img src="favicon.png" alt="WanderWood Logo">
+                        <h1>WanderWood</h1>
+                        <h2>Catalog 2026</h2>
+                        <p>Handcrafted with Love</p>
+                        <div class="cover-date">${dateText}</div>
+                        <div class="page-footer">טלפון: ${contactPhone} | אתר: ${website}</div>
+                    </section>
+                    ${pages.join('')}
+                </body>
+                </html>
+            `;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                throw new Error('Popup blocked');
+            }
+            printWindow.document.open();
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
+
+            const waitForImages = () => {
+                const images = Array.from(printWindow.document.images);
+                if (!images.length) return Promise.resolve();
+                return Promise.all(images.map((img) => new Promise((resolve) => {
+                    if (img.complete) return resolve();
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                })));
             };
 
-            pdfEngine.createPdf(docDefinition).download(`wanderwood-catalog-${now.toISOString().slice(0, 10)}.pdf`);
+            await waitForImages();
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+            }, 450);
         } catch (error) {
             console.error('שגיאה ביצירת PDF:', error);
-            alert('לא הצלחנו לטעון את מנוע יצירת ה-PDF. בדקו חיבור לאינטרנט או נסו לרענן את העמוד.');
+            alert('אירעה שגיאה ביצירת חלון ההדפסה. ודאו שחלונות קופצים מאופשרים ונסו שוב.');
         } finally {
             button.disabled = false;
             button.textContent = defaultText;
