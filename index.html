@@ -322,6 +322,7 @@
     let modalProductIndex = -1;
     let modalImageIndex = 0;
     const contactPhone = '055678385';
+    let pdfEngineReadyPromise = null;
 
     async function loadCatalog() {
         try {
@@ -628,6 +629,51 @@
         }
     }
 
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+            document.head.appendChild(script);
+        });
+    }
+
+    async function ensurePdfEngineLoaded() {
+        if (window.pdfMake?.createPdf) return window.pdfMake;
+        if (!pdfEngineReadyPromise) {
+            pdfEngineReadyPromise = (async () => {
+                const providerPairs = [
+                    [
+                        'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.17/pdfmake.min.js',
+                        'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.17/vfs_fonts.min.js'
+                    ],
+                    [
+                        'https://unpkg.com/pdfmake@0.2.17/build/pdfmake.min.js',
+                        'https://unpkg.com/pdfmake@0.2.17/build/vfs_fonts.js'
+                    ]
+                ];
+
+                for (const [pdfCore, pdfFonts] of providerPairs) {
+                    try {
+                        if (!window.pdfMake?.createPdf) {
+                            await loadScript(pdfCore);
+                        }
+                        if (!window.pdfMake?.vfs) {
+                            await loadScript(pdfFonts);
+                        }
+                        if (window.pdfMake?.createPdf) return window.pdfMake;
+                    } catch (error) {
+                        console.warn('טעינת מנוע PDF נכשלה מספק אחד, מנסה ספק נוסף.', error);
+                    }
+                }
+                throw new Error('pdfMake failed to load from all configured CDNs');
+            })();
+        }
+        return pdfEngineReadyPromise;
+    }
+
     function renderPdfFooter(currentPage, pageCount) {
         return {
             margin: [30, 14, 30, 10],
@@ -652,6 +698,7 @@
         button.textContent = 'מכין קטלוג...';
 
         try {
+            const pdfEngine = await ensurePdfEngineLoaded();
             const now = new Date();
             const dateText = now.toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
             const content = [
@@ -738,10 +785,10 @@
                 }
             };
 
-            pdfMake.createPdf(docDefinition).download(`wanderwood-catalog-${now.toISOString().slice(0, 10)}.pdf`);
+            pdfEngine.createPdf(docDefinition).download(`wanderwood-catalog-${now.toISOString().slice(0, 10)}.pdf`);
         } catch (error) {
             console.error('שגיאה ביצירת PDF:', error);
-            alert('אירעה שגיאה ביצירת ה-PDF. נסו שוב בעוד רגע.');
+            alert('לא הצלחנו לטעון את מנוע יצירת ה-PDF. בדקו חיבור לאינטרנט או נסו לרענן את העמוד.');
         } finally {
             button.disabled = false;
             button.textContent = defaultText;
