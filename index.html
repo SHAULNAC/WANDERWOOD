@@ -56,7 +56,7 @@
         .modal-overlay { background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); }
         .modal-panel { height: min(88vh, 760px); display: flex; flex-direction: column; }
         .modal-content-grid { flex: 1; min-height: 0; }
-        .modal-image-frame { position: relative; width: 100%; height: 420px; background: #f8f5f1; border-radius: 1rem; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 0.8rem; }
+        .modal-image-frame { position: relative; width: 100%; aspect-ratio: 6240 / 2160; background: #f8f5f1; border-radius: 1rem; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 0.8rem; min-height: 240px; max-height: 420px; }
         .modal-image { width: 100%; height: 100%; object-fit: contain; }
         .modal-side-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 999px; border: none; background: rgba(255,255,255,0.9); box-shadow: 0 8px 20px rgba(0,0,0,0.15); color: #3d2b1f; font-size: 1.25rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .modal-side-nav:hover { background: #bc986a; color: #fff; }
@@ -473,6 +473,7 @@
 
             bindProductEvents();
             startGalleries();
+            syncCatalogSelectionState();
             AOS.refresh();
         } catch (error) {
             console.error('שגיאה בטעינת הקטלוג:', error);
@@ -517,6 +518,7 @@
         document.getElementById('modal-title').textContent = product.name;
         document.getElementById('modal-description').textContent = product.description;
         document.getElementById('modal-price').textContent = `₪${product.price}`;
+        updateModalAddButton();
         updateModalImage();
 
         document.getElementById('product-modal').classList.remove('hidden');
@@ -570,6 +572,11 @@
         orderState.set(product.id, { ...product, qty: previousQty + 1 });
         pendingFocusOrderKey = product.id;
         updateOrderSummary();
+
+        const selectedItemInput = document.getElementById('selected-item');
+        if (selectedItemInput && currentOrderMode === 'catalog') {
+            selectedItemInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
 
     function changeOrderQty(productId, delta) {
@@ -603,6 +610,8 @@
             productsDetailsInput.value = '';
             orderTotalInput.value = '0';
             totalElement.textContent = '₪0';
+            syncCatalogSelectionState();
+            updateModalAddButton();
             return;
         }
 
@@ -648,6 +657,35 @@
             }
             pendingFocusOrderKey = null;
         }
+        syncCatalogSelectionState();
+        updateModalAddButton();
+    }
+
+    function syncCatalogSelectionState() {
+        document.querySelectorAll('.add-to-order').forEach((button) => {
+            const productIndex = Number(button.dataset.productIndex);
+            const product = productCatalog[productIndex];
+            if (!product) return;
+            const qty = orderState.get(product.id)?.qty || 0;
+            if (qty > 0) {
+                button.classList.add('bg-[#bc986a]');
+                button.classList.remove('bg-black');
+                button.textContent = `נוסף (${qty})`;
+            } else {
+                button.classList.remove('bg-[#bc986a]');
+                button.classList.add('bg-black');
+                button.textContent = 'הוסף';
+            }
+        });
+    }
+
+    function updateModalAddButton() {
+        const modalAddButton = document.getElementById('modal-add');
+        if (!modalAddButton || modalProductIndex < 0) return;
+        const product = productCatalog[modalProductIndex];
+        if (!product) return;
+        const qty = orderState.get(product.id)?.qty || 0;
+        modalAddButton.textContent = qty > 0 ? `הוסף עוד (${qty} בעגלה)` : 'הוסף להזמנה';
     }
 
     function bindOrderControls() {
