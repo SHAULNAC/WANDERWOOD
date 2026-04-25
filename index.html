@@ -284,7 +284,7 @@
         </div>
 
         <div class="bg-[#fcfaf7] p-10 rounded-3xl shadow-2xl border border-gray-100" data-aos="fade-right">
-            <form id="order-request-form" action="https://formspree.io/f/meevgjrr" method="POST" novalidate>
+            <form id="order-request-form" novalidate>
                 <div class="mb-5">
                     <label class="block text-sm font-bold mb-2">סוג הזמנה</label>
                     <div id="order-mode-toggle" class="inline-flex bg-white border border-gray-200 rounded-xl p-1">
@@ -402,6 +402,16 @@
                 <button id="modal-add" class="w-full modal-add-cta text-white py-3 font-bold">הוסף להזמנה</button>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="order-success-modal" class="fixed inset-0 z-[120] hidden items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-[#fcfaf7] border-[2px] border-[#8B5E3C] rounded-xl shadow-2xl p-8 text-center">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#f3e8d7] text-[#8B5E3C] text-4xl">✓</div>
+        <h3 class="text-3xl font-bold text-[#3d2b1f] mb-3">הזמנתך התקבלה!</h3>
+        <p class="text-[#6b4e38] leading-relaxed mb-6">שלחנו לך מייל אישור עם כל הפרטים. נחזור אליך בהקדם.</p>
+        <button id="close-success-modal" type="button" class="w-full btn-gold py-3 text-lg font-bold">סגור</button>
     </div>
 </div>
 
@@ -893,6 +903,8 @@
 
     function bindFormValidation() {
         const form = document.getElementById('order-request-form');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const defaultSubmitText = submitButton?.textContent || 'שלח בקשת הזמנה';
         form.addEventListener('submit', async (event) => {
             if (isSubmittingForm) return;
             event.preventDefault();
@@ -906,7 +918,126 @@
             }
 
             isSubmittingForm = true;
-            form.submit();
+            setSubmitButtonState(submitButton, true, defaultSubmitText);
+
+            try {
+                const formData = new FormData(form);
+                const imageUrls = uploadedReferenceUrls.slice();
+                const payload = {
+                    name: (formData.get('name') || '').toString().trim(),
+                    email: (formData.get('email') || '').toString().trim(),
+                    phone: (formData.get('phone') || '').toString().trim(),
+                    total_price: getOrderTotalForSubmission(),
+                    order_details: buildOrderDetails(formData),
+                    image_urls: imageUrls
+                };
+
+                const endpoint = 'https://script.google.com/macros/s/AKfycbyHRBP3lPqOojiOQLyP2tljOt0zWozPlnaDSlzUXFvFh3cvviAH81RrFcQIZ3_PdvPh/exec';
+                const requestConfig = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                };
+
+                let response;
+                try {
+                    response = await fetch(endpoint, requestConfig);
+                } catch (error) {
+                    response = await fetch(endpoint, { ...requestConfig, mode: 'no-cors' });
+                }
+
+                if (response && response.type !== 'opaque' && !response.ok) {
+                    throw new Error(`Submission failed with status ${response.status}`);
+                }
+
+                showSuccessModal();
+            } catch (error) {
+                console.error('שגיאה בשליחת הטופס:', error);
+                const generalError = document.getElementById('form-general-error');
+                generalError.textContent = 'שליחת ההזמנה נכשלה, נסי שוב בעוד רגע.';
+                generalError.classList.remove('hidden');
+            } finally {
+                isSubmittingForm = false;
+                setSubmitButtonState(submitButton, false, defaultSubmitText);
+            }
+        });
+    }
+
+    function setSubmitButtonState(button, loading, defaultText) {
+        if (!button) return;
+        button.disabled = loading;
+        if (loading) {
+            button.textContent = 'מעבד הזמנה...';
+            button.classList.add('animate-pulse');
+        } else {
+            button.textContent = defaultText;
+            button.classList.remove('animate-pulse');
+        }
+    }
+
+    function getOrderTotalForSubmission() {
+        if (currentOrderMode === 'catalog') {
+            return document.getElementById('order-total-input').value || '0';
+        }
+        return document.getElementById('custom-price').value || '0';
+    }
+
+    function buildOrderDetails(formData) {
+        const details = [];
+        details.push(`סוג הזמנה: ${currentOrderMode === 'catalog' ? 'בחירה מקטלוג' : 'עיצוב אישי חדש'}`);
+
+        if (currentOrderMode === 'catalog') {
+            const selectedProducts = (formData.get('products_details') || '').toString().trim();
+            if (selectedProducts) details.push(`פריטי הזמנה: ${selectedProducts}`);
+        } else {
+            const customType = (formData.get('custom_product_type') || '').toString().trim();
+            const customDescription = (formData.get('custom_description') || '').toString().trim();
+            const customPriceExpectation = (formData.get('custom_price_expectation') || '').toString().trim();
+            if (customType) details.push(`סוג מוצר: ${customType}`);
+            if (customDescription) details.push(`תיאור: ${customDescription}`);
+            if (customPriceExpectation) details.push(`ציפיית מחיר: ₪${customPriceExpectation}`);
+        }
+
+        const notes = (formData.get('message') || '').toString().trim();
+        if (notes) details.push(`הערות נוספות: ${notes}`);
+
+        return details.join(' | ');
+    }
+
+    function showSuccessModal() {
+        const successModal = document.getElementById('order-success-modal');
+        successModal.classList.remove('hidden');
+        successModal.classList.add('flex');
+    }
+
+    function hideSuccessModal() {
+        const successModal = document.getElementById('order-success-modal');
+        successModal.classList.add('hidden');
+        successModal.classList.remove('flex');
+    }
+
+    function resetOrderFormAndState() {
+        const form = document.getElementById('order-request-form');
+        form.reset();
+        orderState.clear();
+        updateOrderSummary();
+        setOrderMode('catalog');
+        uploadedReferenceUrls = [];
+        pendingFileUploads = [];
+        const status = document.getElementById('custom-upload-status');
+        const hiddenInput = document.getElementById('custom-reference-images');
+        if (status) status.textContent = '';
+        if (hiddenInput) hiddenInput.value = '';
+        const generalError = document.getElementById('form-general-error');
+        generalError.classList.add('hidden');
+        generalError.textContent = 'נא לתקן את השדות המסומנים';
+    }
+
+    function bindSuccessModal() {
+        const closeButton = document.getElementById('close-success-modal');
+        closeButton.addEventListener('click', () => {
+            resetOrderFormAndState();
+            hideSuccessModal();
         });
     }
 
@@ -1111,6 +1242,7 @@
     bindOrderModeToggle();
     bindCustomUpload();
     bindFormValidation();
+    bindSuccessModal();
     setOrderMode('catalog');
     function startHeroBackgrounds() {
         const slides = Array.from(document.querySelectorAll('[data-hero-slide]'));
