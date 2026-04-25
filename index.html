@@ -407,10 +407,10 @@
 
 <div id="order-success-modal" class="fixed inset-0 z-[120] hidden items-center justify-center px-4">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-    <div class="relative w-full max-w-md bg-[#fcfaf7] border-[2px] border-[#8B5E3C] rounded-xl shadow-2xl p-8 text-center">
-        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#f3e8d7] text-[#8B5E3C] text-4xl">✓</div>
+    <div class="relative w-full max-w-md bg-[#fcfaf7] border-4 border-[#8B5E3C] rounded-xl shadow-2xl p-6 sm:p-8 text-center">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#e9f8ec] text-[#16a34a] text-4xl">✓</div>
         <h3 class="text-3xl font-bold text-[#3d2b1f] mb-3">הזמנתך התקבלה!</h3>
-        <p class="text-[#6b4e38] leading-relaxed mb-6">שלחנו לך מייל אישור עם כל הפרטים. נחזור אליך בהקדם.</p>
+        <p class="text-[#6b4e38] leading-relaxed mb-6 text-sm sm:text-base">שלחנו לך מייל אישור. נחזור אליך בקרוב לתאם את שאר הפרטים.</p>
         <button id="close-success-modal" type="button" class="w-full btn-gold py-3 text-lg font-bold">סגור</button>
     </div>
 </div>
@@ -932,23 +932,17 @@
                     image_urls: imageUrls
                 };
 
-                const endpoint = 'https://script.google.com/macros/s/AKfycbyHRBP3lPqOojiOQLyP2tljOt0zWozPlnaDSlzUXFvFh3cvviAH81RrFcQIZ3_PdvPh/exec';
+                const endpoint = 'https://script.google.com/macros/s/AKfycbzN4nZ5HJo39gKVXetbWA1SrkN-0j7KDjTQ8s625JDq3Pqsli3sZvQyAsqtI4tLlWA/exec';
+                const requestBody = new URLSearchParams();
+                requestBody.append('formData', JSON.stringify(payload));
                 const requestConfig = {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: requestBody
                 };
 
-                let response;
-                try {
-                    response = await fetch(endpoint, requestConfig);
-                } catch (error) {
-                    response = await fetch(endpoint, { ...requestConfig, mode: 'no-cors' });
-                }
-
-                if (response && response.type !== 'opaque' && !response.ok) {
-                    throw new Error(`Submission failed with status ${response.status}`);
-                }
+                await fetch(endpoint, requestConfig);
 
                 showSuccessModal();
             } catch (error) {
@@ -967,7 +961,7 @@
         if (!button) return;
         button.disabled = loading;
         if (loading) {
-            button.textContent = 'מעבד הזמנה...';
+            button.textContent = 'שולח הזמנה...';
             button.classList.add('animate-pulse');
         } else {
             button.textContent = defaultText;
