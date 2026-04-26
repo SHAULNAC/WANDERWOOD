@@ -285,14 +285,6 @@
 
         <div class="bg-[#fcfaf7] p-10 rounded-3xl shadow-2xl border border-gray-100" data-aos="fade-right">
             <form id="order-request-form" novalidate>
-                <div class="mb-5">
-                    <label class="block text-sm font-bold mb-2">סוג הזמנה</label>
-                    <div id="order-mode-toggle" class="inline-flex bg-white border border-gray-200 rounded-xl p-1">
-                        <button type="button" data-mode="catalog" class="px-4 py-2 text-sm font-bold rounded-lg bg-[#bc986a] text-white">בחירה מקטלוג</button>
-                        <button type="button" data-mode="custom" class="px-4 py-2 text-sm font-bold rounded-lg text-gray-700">עיצוב אישי חדש</button>
-                    </div>
-                    <input type="hidden" name="order_mode" id="order-mode-input" value="catalog">
-                </div>
                 <div class="mb-4">
                     <label class="block text-sm font-bold mb-2">שם מלא</label>
                     <input type="text" name="name" class="form-input" placeholder="ישראל ישראלי" required>
@@ -309,10 +301,14 @@
                     <p class="hidden mt-1 text-xs text-red-600"></p>
                 </div>
                 <div id="catalog-order-fields" class="mb-4">
+                    <div class="mb-3">
+                        <button id="open-custom-product-modal" type="button" class="w-full border border-dashed border-[#bc986a] bg-white text-[#8B5E3C] font-bold py-3 rounded-xl hover:bg-[#f8f1e8] transition">+ הוספת מוצר מותאם אישית</button>
+                    </div>
                     <label class="block text-sm font-bold mb-2">המוצרים שבחרת</label>
                     <input type="text" name="product" id="selected-item" class="form-input bg-gray-50" placeholder="ניתן לבחור כמה מוצרים מהגלריה" required readonly>
                     <input type="hidden" name="products_details" id="products-details">
                     <input type="hidden" name="order_total" id="order-total-input">
+                    <input type="hidden" name="custom_reference_images" id="custom-reference-images">
                     <p class="hidden mt-1 text-xs text-red-600"></p>
                     <div class="mb-4 bg-white rounded-xl p-4 border border-gray-100">
                         <div class="flex justify-between items-center mb-2">
@@ -322,34 +318,6 @@
                         <div id="order-items" class="space-y-2 text-sm text-gray-600">
                             <p id="order-placeholder">עדיין לא נוספו מוצרים.</p>
                         </div>
-                    </div>
-                </div>
-                <div id="custom-order-fields" class="hidden">
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2">סוג המוצר</label>
-                        <input type="text" name="custom_product_type" id="custom-product-type" class="form-input" placeholder="לדוגמה: רקע לצילום מוצרים">
-                        <p class="hidden mt-1 text-xs text-red-600"></p>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2">תיאור וייעוד</label>
-                        <textarea name="custom_description" id="custom-description" rows="3" class="form-input" placeholder="מה המוצר צריך לעשות, מידות, שימושים וכו׳"></textarea>
-                        <p class="hidden mt-1 text-xs text-red-600"></p>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2">ציפיית מחיר</label>
-                        <input type="number" min="0" name="custom_price_expectation" id="custom-price" class="form-input" placeholder="0">
-                        <p class="hidden mt-1 text-xs text-red-600"></p>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2">תמונות רפרנס</label>
-                        <input type="file" id="custom-reference-files" class="form-input !mb-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#bc986a] file:text-white file:font-semibold hover:file:bg-[#a38157]" accept="image/*" multiple>
-                        <input type="hidden" name="custom_reference_images" id="custom-reference-images">
-                        <div id="custom-upload-loader" class="hidden items-center gap-2 text-xs text-gray-600">
-                            <span class="loader !w-4 !h-4 !border-2"></span>
-                            <span>מעלה תמונות...</span>
-                        </div>
-                        <p id="custom-upload-status" class="mt-1 text-xs text-gray-500"></p>
-                        <p class="hidden mt-1 text-xs text-red-600"></p>
                     </div>
                 </div>
                 <div class="mb-6">
@@ -405,6 +373,39 @@
     </div>
 </div>
 
+<div id="custom-product-modal" class="fixed inset-0 z-[115] hidden items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-2xl bg-[#fcfaf7] border-2 border-[#8B5E3C] rounded-2xl shadow-2xl p-5 sm:p-7 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-[#3d2b1f]">הוספת מוצר מותאם אישית</h3>
+            <button id="close-custom-product-modal" type="button" class="modal-close-btn" aria-label="סגור חלון">&times;</button>
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-bold mb-2">סוג המוצר</label>
+            <input type="text" id="custom-modal-product-type" class="form-input" placeholder="לדוגמה: רקע לצילום מוצרים">
+            <p id="custom-modal-type-error" class="hidden mt-1 text-xs text-red-600">שדה חובה</p>
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-bold mb-2">תיאור וייעוד</label>
+            <textarea id="custom-modal-description" rows="3" class="form-input" placeholder="מה המוצר צריך לעשות, מידות, שימושים וכו׳"></textarea>
+            <p id="custom-modal-description-error" class="hidden mt-1 text-xs text-red-600">שדה חובה</p>
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-bold mb-2">תמונות השראה</label>
+            <input type="file" id="custom-modal-reference-files" class="form-input !mb-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#bc986a] file:text-white file:font-semibold hover:file:bg-[#a38157]" accept="image/*" multiple>
+            <div id="custom-modal-image-preview" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+        </div>
+        <div class="mb-5">
+            <label class="block text-sm font-bold mb-2">ציפיית מחיר (אופציונלי)</label>
+            <input type="number" min="0" id="custom-modal-price" class="form-input" placeholder="0">
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <button id="save-custom-product" type="button" class="flex-1 btn-gold py-3 font-bold">הוספה להזמנה</button>
+            <button id="cancel-custom-product" type="button" class="flex-1 bg-white border border-gray-300 rounded-xl py-3 font-bold hover:bg-gray-50 transition">ביטול</button>
+        </div>
+    </div>
+</div>
+
 <div id="order-success-modal" class="fixed inset-0 z-[120] hidden items-center justify-center px-4">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
     <div class="relative w-full max-w-md bg-[#fcfaf7] border-4 border-[#8B5E3C] rounded-xl shadow-2xl p-6 sm:p-8 text-center">
@@ -427,11 +428,10 @@
     let modalProductIndex = -1;
     let modalImageIndex = 0;
     let pendingFocusOrderKey = null;
-    let currentOrderMode = 'catalog';
     let isSubmittingForm = false;
     let uploadInProgress = false;
-    let pendingFileUploads = [];
-    let uploadedReferenceUrls = [];
+    let customDraftImages = [];
+    let customOrderItems = [];
     const contactPhone = '055678385';
 
     async function loadCatalog() {
@@ -604,7 +604,7 @@
         updateOrderSummary();
 
         const selectedItemInput = document.getElementById('selected-item');
-        if (selectedItemInput && currentOrderMode === 'catalog') {
+        if (selectedItemInput) {
             selectedItemInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
@@ -634,7 +634,7 @@
         const orderTotalInput = document.getElementById('order-total-input');
         const totalElement = document.getElementById('order-total');
 
-        if (!orderState.size) {
+        if (!orderState.size && !customOrderItems.length) {
             orderItemsContainer.innerHTML = '<p id="order-placeholder">עדיין לא נוספו מוצרים.</p>';
             selectedItemInput.value = '';
             productsDetailsInput.value = '';
@@ -671,6 +671,24 @@
                 <span class="font-bold">₪${lineTotal}</span>
             `;
             orderItemsContainer.appendChild(chip);
+        });
+
+        customOrderItems.forEach((item) => {
+            const safeType = escapeHtml(item.type);
+            const safeDescription = escapeHtml(item.description || 'ללא תיאור נוסף');
+            const safePrice = escapeHtml(item.priceExpectation || '');
+            const customChip = document.createElement('div');
+            customChip.className = 'order-chip';
+            customChip.innerHTML = `
+                <div>
+                    <div class="font-medium">מוצר מותאם אישית: ${safeType}</div>
+                    <div class="text-xs text-gray-500">${safeDescription}</div>
+                    ${safePrice ? `<div class="text-xs text-[#8a653f]">ציפיית מחיר: ₪${safePrice}</div>` : ''}
+                </div>
+                <button type="button" class="remove-btn custom-remove" data-custom-id="${item.id}">הסר</button>
+            `;
+            orderItemsContainer.appendChild(customChip);
+            detailParts.push(`מותאם אישית: ${item.type}${item.description ? ` - ${item.description}` : ''}${item.priceExpectation ? ` (ציפיית מחיר: ₪${item.priceExpectation})` : ''}`);
         });
 
         selectedItemInput.value = detailParts.map(part => part.split(' (')[0]).join(', ');
@@ -732,38 +750,11 @@
                 changeOrderQty(orderKey, -1);
             } else if (target.classList.contains('order-remove')) {
                 removeFromOrder(orderKey);
+            } else if (target.classList.contains('custom-remove')) {
+                const customId = target.dataset.customId;
+                customOrderItems = customOrderItems.filter((item) => item.id !== customId);
+                updateOrderSummary();
             }
-        });
-    }
-
-    function setOrderMode(mode) {
-        currentOrderMode = mode;
-        const isCatalogMode = mode === 'catalog';
-        document.getElementById('order-mode-input').value = mode;
-        document.getElementById('catalog-order-fields').classList.toggle('hidden', !isCatalogMode);
-        document.getElementById('custom-order-fields').classList.toggle('hidden', isCatalogMode);
-
-        const selectedItemInput = document.getElementById('selected-item');
-        const customTypeInput = document.getElementById('custom-product-type');
-        const customDescriptionInput = document.getElementById('custom-description');
-        const customPriceInput = document.getElementById('custom-price');
-
-        selectedItemInput.required = isCatalogMode;
-        customTypeInput.required = !isCatalogMode;
-        customDescriptionInput.required = !isCatalogMode;
-        customPriceInput.required = !isCatalogMode;
-
-        document.querySelectorAll('#order-mode-toggle button[data-mode]').forEach((button) => {
-            const active = button.dataset.mode === mode;
-            button.classList.toggle('bg-[#bc986a]', active);
-            button.classList.toggle('text-white', active);
-            button.classList.toggle('text-gray-700', !active);
-        });
-    }
-
-    function bindOrderModeToggle() {
-        document.querySelectorAll('#order-mode-toggle button[data-mode]').forEach((button) => {
-            button.addEventListener('click', () => setOrderMode(button.dataset.mode));
         });
     }
 
@@ -800,15 +791,7 @@
             form.querySelector('input[name="email"]')
         ];
 
-        if (currentOrderMode === 'catalog') {
-            requiredFields.push(document.getElementById('selected-item'));
-        } else {
-            requiredFields.push(
-                document.getElementById('custom-product-type'),
-                document.getElementById('custom-description'),
-                document.getElementById('custom-price')
-            );
-        }
+        requiredFields.push(document.getElementById('selected-item'));
 
         requiredFields.forEach((field) => {
             if (!field || field.closest('.hidden')) return;
@@ -838,66 +821,122 @@
         return isValid;
     }
 
-    async function uploadCustomReferenceFiles(fileList) {
-        const loader = document.getElementById('custom-upload-loader');
-        const status = document.getElementById('custom-upload-status');
-        const hiddenInput = document.getElementById('custom-reference-images');
-        const fileInput = document.getElementById('custom-reference-files');
+    function renderCustomDraftPreview() {
+        const previewContainer = document.getElementById('custom-modal-image-preview');
+        previewContainer.innerHTML = customDraftImages.map((image) => `
+            <div class="relative rounded-lg overflow-hidden border border-gray-200 bg-white">
+                <img src="${image.previewUrl}" class="w-full h-24 object-cover" alt="תמונת השראה">
+                <button type="button" class="absolute top-1 left-1 text-xs bg-white/90 border border-red-200 text-red-600 rounded-full px-2 py-1 custom-draft-remove" data-image-id="${image.id}">הסר</button>
+            </div>
+        `).join('');
+    }
 
-        if (!fileList.length) {
-            status.textContent = '';
-            hiddenInput.value = uploadedReferenceUrls.join(', ');
-            return true;
-        }
+    function resetCustomProductModal() {
+        document.getElementById('custom-modal-product-type').value = '';
+        document.getElementById('custom-modal-description').value = '';
+        document.getElementById('custom-modal-price').value = '';
+        document.getElementById('custom-modal-reference-files').value = '';
+        document.getElementById('custom-modal-type-error').classList.add('hidden');
+        document.getElementById('custom-modal-description-error').classList.add('hidden');
+        customDraftImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+        customDraftImages = [];
+        renderCustomDraftPreview();
+    }
 
-        loader.classList.remove('hidden');
-        loader.classList.add('flex');
-        status.textContent = 'מעלה תמונות רפרנס...';
+    function openCustomProductModal() {
+        document.getElementById('custom-product-modal').classList.remove('hidden');
+        document.getElementById('custom-product-modal').classList.add('flex');
+    }
+
+    function closeCustomProductModal() {
+        document.getElementById('custom-product-modal').classList.add('hidden');
+        document.getElementById('custom-product-modal').classList.remove('flex');
+        resetCustomProductModal();
+    }
+
+    async function uploadAllCustomImages() {
+        const uploadedUrls = [];
         uploadInProgress = true;
-
         try {
-            const uploadedNow = [];
-            for (const file of fileList) {
-                const payload = new FormData();
-                payload.append('image', file);
-                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                    method: 'POST',
-                    body: payload
-                });
-                const result = await response.json();
-                if (!response.ok || !result?.data?.url) {
-                    throw new Error('IMGBB upload failed');
+            for (const customItem of customOrderItems) {
+                for (const image of customItem.images) {
+                    if (image.uploadedUrl) {
+                        uploadedUrls.push(image.uploadedUrl);
+                        continue;
+                    }
+                    const payload = new FormData();
+                    payload.append('image', image.file);
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                        method: 'POST',
+                        body: payload
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result?.data?.url) {
+                        throw new Error('IMGBB upload failed');
+                    }
+                    image.uploadedUrl = result.data.url;
+                    uploadedUrls.push(result.data.url);
                 }
-                uploadedNow.push(result.data.url);
             }
-
-            uploadedReferenceUrls.push(...uploadedNow);
-            hiddenInput.value = uploadedReferenceUrls.join(', ');
-            status.textContent = `הועלו ${uploadedNow.length} תמונות בהצלחה.`;
-            fileInput.value = '';
-            clearFieldError(fileInput);
-            return true;
-        } catch (error) {
-            console.error('שגיאה בהעלאת תמונות:', error);
-            status.textContent = 'העלאה נכשלה, נסי שוב.';
-            setFieldError(fileInput, 'העלאת התמונות נכשלה, נסי שוב');
-            return false;
+            return uploadedUrls;
         } finally {
             uploadInProgress = false;
-            loader.classList.add('hidden');
-            loader.classList.remove('flex');
         }
     }
 
-    function bindCustomUpload() {
-        const fileInput = document.getElementById('custom-reference-files');
-        fileInput.addEventListener('change', async (event) => {
+    function bindCustomProductModal() {
+        document.getElementById('open-custom-product-modal').addEventListener('click', openCustomProductModal);
+        document.getElementById('close-custom-product-modal').addEventListener('click', closeCustomProductModal);
+        document.getElementById('cancel-custom-product').addEventListener('click', closeCustomProductModal);
+        document.querySelector('#custom-product-modal > .absolute').addEventListener('click', closeCustomProductModal);
+
+        document.getElementById('custom-modal-reference-files').addEventListener('change', (event) => {
             const selectedFiles = Array.from(event.target.files || []);
-            pendingFileUploads = selectedFiles;
-            if (selectedFiles.length) {
-                await uploadCustomReferenceFiles(selectedFiles);
-                pendingFileUploads = [];
-            }
+            selectedFiles.forEach((file) => {
+                customDraftImages.push({
+                    id: `draft-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                    file,
+                    previewUrl: URL.createObjectURL(file)
+                });
+            });
+            event.target.value = '';
+            renderCustomDraftPreview();
+        });
+
+        document.getElementById('custom-modal-image-preview').addEventListener('click', (event) => {
+            const button = event.target.closest('.custom-draft-remove');
+            if (!button) return;
+            const imageId = button.dataset.imageId;
+            const image = customDraftImages.find((item) => item.id === imageId);
+            if (image) URL.revokeObjectURL(image.previewUrl);
+            customDraftImages = customDraftImages.filter((item) => item.id !== imageId);
+            renderCustomDraftPreview();
+        });
+
+        document.getElementById('save-custom-product').addEventListener('click', () => {
+            const typeInput = document.getElementById('custom-modal-product-type');
+            const descriptionInput = document.getElementById('custom-modal-description');
+            const priceInput = document.getElementById('custom-modal-price');
+            const typeError = document.getElementById('custom-modal-type-error');
+            const descriptionError = document.getElementById('custom-modal-description-error');
+
+            const typeValue = typeInput.value.trim();
+            const descriptionValue = descriptionInput.value.trim();
+            const priceValue = priceInput.value.trim();
+            typeError.classList.toggle('hidden', Boolean(typeValue));
+            descriptionError.classList.toggle('hidden', Boolean(descriptionValue));
+
+            if (!typeValue || !descriptionValue) return;
+
+            customOrderItems.push({
+                id: `custom-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                type: typeValue,
+                description: descriptionValue,
+                priceExpectation: priceValue,
+                images: customDraftImages.map((image) => ({ ...image, uploadedUrl: null }))
+            });
+            updateOrderSummary();
+            closeCustomProductModal();
         });
     }
 
@@ -910,19 +949,15 @@
             event.preventDefault();
 
             if (!validateOrderForm()) return;
-            if (currentOrderMode === 'custom' && uploadInProgress) return;
-            if (currentOrderMode === 'custom' && pendingFileUploads.length) {
-                const uploaded = await uploadCustomReferenceFiles(pendingFileUploads);
-                pendingFileUploads = [];
-                if (!uploaded) return;
-            }
+            if (uploadInProgress) return;
 
             isSubmittingForm = true;
             setSubmitButtonState(submitButton, true, defaultSubmitText);
 
             try {
                 const formData = new FormData(form);
-                const imageUrls = uploadedReferenceUrls.slice();
+                const imageUrls = await uploadAllCustomImages();
+                document.getElementById('custom-reference-images').value = imageUrls.join(', ');
                 const payload = {
                     name: (formData.get('name') || '').toString().trim(),
                     email: (formData.get('email') || '').toString().trim(),
@@ -932,7 +967,7 @@
                     image_urls: imageUrls
                 };
 
-                const endpoint = 'https://script.google.com/macros/s/AKfycbzN4nZ5HJo39gKVXetbWA1SrkN-0j7KDjTQ8s625JDq3Pqsli3sZvQyAsqtI4tLlWA/exec';
+                const endpoint = 'https://script.google.com/macros/s/AKfycbwBOHy4lRKN5UWjyjsLmG0NJsXdVObh45fsYEXt9XhQ85q-lte5q9aaj8RlO11ZSNmP/exec';
                 const requestBody = new URLSearchParams();
                 requestBody.append('formData', JSON.stringify(payload));
                 const requestConfig = {
@@ -970,27 +1005,13 @@
     }
 
     function getOrderTotalForSubmission() {
-        if (currentOrderMode === 'catalog') {
-            return document.getElementById('order-total-input').value || '0';
-        }
-        return document.getElementById('custom-price').value || '0';
+        return document.getElementById('order-total-input').value || '0';
     }
 
     function buildOrderDetails(formData) {
         const details = [];
-        details.push(`סוג הזמנה: ${currentOrderMode === 'catalog' ? 'בחירה מקטלוג' : 'עיצוב אישי חדש'}`);
-
-        if (currentOrderMode === 'catalog') {
-            const selectedProducts = (formData.get('products_details') || '').toString().trim();
-            if (selectedProducts) details.push(`פריטי הזמנה: ${selectedProducts}`);
-        } else {
-            const customType = (formData.get('custom_product_type') || '').toString().trim();
-            const customDescription = (formData.get('custom_description') || '').toString().trim();
-            const customPriceExpectation = (formData.get('custom_price_expectation') || '').toString().trim();
-            if (customType) details.push(`סוג מוצר: ${customType}`);
-            if (customDescription) details.push(`תיאור: ${customDescription}`);
-            if (customPriceExpectation) details.push(`ציפיית מחיר: ₪${customPriceExpectation}`);
-        }
+        const selectedProducts = (formData.get('products_details') || '').toString().trim();
+        if (selectedProducts) details.push(`פריטי הזמנה: ${selectedProducts}`);
 
         const notes = (formData.get('message') || '').toString().trim();
         if (notes) details.push(`הערות נוספות: ${notes}`);
@@ -1014,13 +1035,10 @@
         const form = document.getElementById('order-request-form');
         form.reset();
         orderState.clear();
+        customOrderItems.forEach((item) => item.images.forEach((img) => URL.revokeObjectURL(img.previewUrl)));
+        customOrderItems = [];
         updateOrderSummary();
-        setOrderMode('catalog');
-        uploadedReferenceUrls = [];
-        pendingFileUploads = [];
-        const status = document.getElementById('custom-upload-status');
         const hiddenInput = document.getElementById('custom-reference-images');
-        if (status) status.textContent = '';
         if (hiddenInput) hiddenInput.value = '';
         const generalError = document.getElementById('form-general-error');
         generalError.classList.add('hidden');
@@ -1233,11 +1251,9 @@
     bindSmoothScroll();
     bindModalEvents();
     bindOrderControls();
-    bindOrderModeToggle();
-    bindCustomUpload();
+    bindCustomProductModal();
     bindFormValidation();
     bindSuccessModal();
-    setOrderMode('catalog');
     function startHeroBackgrounds() {
         const slides = Array.from(document.querySelectorAll('[data-hero-slide]'));
         if (slides.length <= 1) return;
