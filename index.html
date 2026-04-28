@@ -123,11 +123,9 @@
             transition: background 0.35s ease, box-shadow 0.35s ease, backdrop-filter 0.35s ease;
         }
         .top-nav.scrolled {
-            background-image: linear-gradient(rgba(39, 27, 19, 0.68), rgba(39, 27, 19, 0.68)), var(--nav-bg-image, none);
-            background-size: cover;
-            background-position: center bottom;
+            background: rgba(39, 27, 19, 0.58);
             box-shadow: 0 12px 28px rgba(24, 16, 11, 0.32);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(10px);
         }
         .about-modern-card { background: linear-gradient(130deg, #ffffff, #f7f1e8); border: 1px solid #ece0d2; border-radius: 1.5rem; box-shadow: 0 18px 40px rgba(61, 43, 31, 0.1); }
         .about-badge { background: #fffaf2; border: 1px solid #ecdcc5; border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.85rem; font-weight: 700; color: #8a653f; display: inline-flex; }
@@ -345,9 +343,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="lg:col-span-2 grid grid-rows-2 gap-4">
-                    <img class="about-image" data-aos="zoom-in" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80" alt="נגרות בעץ">
-                    <img class="about-image" data-aos="zoom-in" data-aos-delay="120" src="https://images.unsplash.com/photo-1452160392676-5e712e73f522?auto=format&fit=crop&w=900&q=80" alt="מלאכת יד בעץ">
+                <div class="lg:col-span-2">
+                    <img class="about-image h-full min-h-[320px]" data-aos="zoom-in" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80" alt="נגרות בעץ">
                 </div>
             </div>
         </div>
@@ -1204,27 +1201,14 @@
         nav.classList.toggle('scrolled', window.scrollY > 36);
     }
 
-    function setTopNavBackgroundFromHero(url) {
-        const nav = document.getElementById('top-nav');
-        if (!nav || !url) return;
-        nav.style.setProperty('--nav-bg-image', `url('${url}')`);
-    }
-
     function startHeroBackgrounds() {
         const slides = Array.from(document.querySelectorAll('[data-hero-slide]'));
         if (slides.length <= 1) return;
-        const getSlideUrl = (slide) => {
-            const bg = slide.style.backgroundImage || '';
-            const match = bg.match(/url\(["']?(.*?)["']?\)/);
-            return match ? match[1] : '';
-        };
         let active = 0;
-        setTopNavBackgroundFromHero(getSlideUrl(slides[active]));
         setInterval(() => {
             slides[active].classList.remove('active');
             active = (active + 1) % slides.length;
             slides[active].classList.add('active');
-            setTopNavBackgroundFromHero(getSlideUrl(slides[active]));
         }, 5000);
     }
 
