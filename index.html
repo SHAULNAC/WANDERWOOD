@@ -116,6 +116,21 @@
         }
         .catalog-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(61, 43, 31, 0.2); }
         .catalog-btn:disabled { opacity: 0.65; cursor: wait; transform: none; box-shadow: none; }
+        .top-nav {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 60;
+            transition: background 0.35s ease, box-shadow 0.35s ease, backdrop-filter 0.35s ease;
+        }
+        .top-nav.scrolled {
+            background-image: linear-gradient(rgba(39, 27, 19, 0.68), rgba(39, 27, 19, 0.68)), var(--nav-bg-image, none);
+            background-size: cover;
+            background-position: center bottom;
+            box-shadow: 0 12px 28px rgba(24, 16, 11, 0.32);
+            backdrop-filter: blur(4px);
+        }
+        .about-modern-card { background: linear-gradient(130deg, #ffffff, #f7f1e8); border: 1px solid #ece0d2; border-radius: 1.5rem; box-shadow: 0 18px 40px rgba(61, 43, 31, 0.1); }
+        .about-badge { background: #fffaf2; border: 1px solid #ecdcc5; border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.85rem; font-weight: 700; color: #8a653f; display: inline-flex; }
         .footer-brand { position: relative; overflow: hidden; }
         .footer-bg-icon {
             position: absolute;
@@ -155,22 +170,21 @@
 </head>
 <body>
 
-<nav class="flex justify-between items-center px-6 md:px-12 py-6 absolute w-full z-50 text-white">
-    <div class="flex items-center gap-3 text-3xl font-bold tracking-tighter">
+<nav id="top-nav" class="top-nav flex justify-between items-center px-6 md:px-12 py-5 text-white">
+    <a href="#home" class="smooth-link flex items-center gap-3 text-3xl font-bold tracking-tighter">
         <img src="favicon.png" alt="Logo" class="w-10 h-10 object-contain">
         <div>Wander<span class="text-[#bc986a]">Wood</span></div>
-    </div>
+    </a>
 
     <ul class="hidden md:flex gap-8 font-medium">
         <li><a href="#collection" class="smooth-link hover:text-[#bc986a] transition">קולקציה</a></li>
         <li><a href="#features" class="smooth-link hover:text-[#bc986a] transition">למה אנחנו?</a></li>
-        <li><a href="#about" class="smooth-link hover:text-[#bc986a] transition">קצת עליי</a></li>
         <li><a href="#order-form" class="smooth-link hover:text-[#bc986a] transition">הזמנה אישית</a></li>
+        <li><a href="#about" class="smooth-link hover:text-[#bc986a] transition">קצת עליי</a></li>
     </ul>
-    <a href="#order-form" class="smooth-link border border-white px-6 py-2 rounded-full hover:bg-[#bc986a] hover:border-[#bc986a] transition">צור קשר</a>
 </nav>
 
-<section class="h-screen hero-gradient flex items-center justify-center text-center text-white px-4">
+<section id="home" class="h-screen hero-gradient flex items-center justify-center text-center text-white px-4">
     <div class="hero-bg-layer active" data-hero-slide style="background-image:url('https://images.unsplash.com/photo-1648212947347-0703c653e06a?w=1600&auto=format&fit=crop&q=80')"></div>
     <div class="hero-bg-layer" data-hero-slide style="background-image:url('https://i.ibb.co/7x2yFzgz/IMG-8726.jpg')"></div>
     <div class="hero-bg-layer" data-hero-slide style="background-image:url('https://i.ibb.co/5gNmxcMW/IMG-8707.jpg')"></div>
@@ -180,38 +194,6 @@
         <div class="flex flex-col md:flex-row gap-4 justify-center">
             <a href="#collection" class="smooth-link btn-gold px-10 py-4 text-lg font-bold shadow-lg">צפה בקולקציה</a>
             <a href="#order-form" class="smooth-link bg-white text-black px-10 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition shadow-lg">הזמנה לפי מידה</a>
-        </div>
-    </div>
-</section>
-
-<section id="about" class="py-24 px-6 md:px-12 bg-white">
-    <div class="max-w-5xl mx-auto">
-        <div class="text-center mb-10" data-aos="fade-up">
-            <div class="flex justify-center mb-4">
-                <img src="favicon.png" alt="WanderWood icon" class="w-16 h-16 object-contain drop-shadow-md">
-            </div>
-            <h2 class="text-4xl font-bold mb-4">קצת עליי</h2>
-            <p class="text-[#bc986a] text-xl font-medium">ממחשבה למציאות: הנדסה יצירתית בעץ</p>
-        </div>
-        <div class="about-card p-8 md:p-12 text-right leading-loose text-lg text-[#4b3a2d] space-y-8" data-aos="fade-up" data-aos-delay="120">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                <div class="lg:col-span-2 space-y-6">
-                    <p>ב-WANDERWOOD אני מאמינה שמוצר טוב באמת נמדד בפרטים הקטנים: בקלות שבה הוא מתקפל, בחוזק שלו מול פגעי הזמן, וביופי שהוא מוסיף לסביבה שלו.</p>
-                    <div>
-                        <p class="font-bold mb-3">הערכים שמובילים אותי בסדנה:</p>
-                        <ul class="space-y-4">
-                            <li class="about-value" data-aos="fade-left"><span class="font-bold">פשטות גאונית:</span> המטרה שלי היא לייצר מוצרים ש"עובדים בשבילך". פטנטים של קיפול ופתיחה מהירה שמתאימים במיוחד לצלמות שזקוקות לציוד קל ונייד, גם כשהן בדרכים או בתחבורה ציבורית.</li>
-                            <li class="about-value" data-aos="fade-left" data-aos-delay="100"><span class="font-bold">עמידות לאורך זמן:</span> אני לא מתפשרת על איכות. כל מוצר מתוכנן לשרוד נשיאות, מעברים ועבודה אינטנסיבית בשטח.</li>
-                            <li class="about-value" data-aos="fade-left" data-aos-delay="200"><span class="font-bold">התאמה אישית מלאה:</span> המותג שלי מבוסס על הקשבה. אין מלאי מוכן מראש – כל הזמנה היא פרויקט חדש שנבנה בדיוק לפי המידות והדרישות שלך, כדי להבטיח שהתוצאה תהיה בדיוק מה שחיפשת.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-4">
-                    <img class="about-image" data-aos="zoom-in" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80" alt="נגרות בעץ">
-                    <img class="about-image" data-aos="zoom-in" data-aos-delay="120" src="https://images.unsplash.com/photo-1452160392676-5e712e73f522?auto=format&fit=crop&w=900&q=80" alt="מלאכת יד בעץ">
-                </div>
-            </div>
-            <p class="font-medium">מחיר נגיש, עיצוב טבעי וגאונות טכנית – הכל במוצר אחד שנתפר עבורך.</p>
         </div>
     </div>
 </section>
@@ -257,9 +239,6 @@
         <div class="text-center mb-16">
             <h2 class="text-4xl font-bold mb-2">הקולקציה שלנו</h2>
             <p class="mt-4 text-sm md:text-base text-gray-500 max-w-3xl mx-auto">המחירים באתר הם אינדיקציה כללית בלבד. המחיר הסופי גמיש ומושפע מפרמטרים טכניים משתנים וממורכבות העבודה.</p>
-            <div class="mt-7 flex justify-center">
-                <button id="download-catalog-btn" class="catalog-btn" type="button">הורדת קטלוג PDF מעוצב</button>
-            </div>
         </div>
         <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
             <div class="col-span-full text-center">
@@ -332,6 +311,45 @@
                 <p id="form-general-error" class="hidden mb-3 text-sm font-semibold text-red-600">נא לתקן את השדות המסומנים</p>
                 <button type="submit" class="w-full btn-gold py-4 font-bold text-lg shadow-lg">שלח בקשת הזמנה</button>
             </form>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="py-24 px-6 md:px-12 bg-[#f7f3ec]">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12" data-aos="fade-up">
+            <span class="about-badge mb-4">WanderWood Studio</span>
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">קצת עליי</h2>
+            <p class="text-[#8a653f] text-lg md:text-xl font-medium">עיצוב פרקטי, גימור מוקפד, והתאמה אישית לכל יוצרת.</p>
+        </div>
+        <div class="about-modern-card p-7 md:p-10" data-aos="fade-up" data-aos-delay="120">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
+                <div class="lg:col-span-3 space-y-6 text-right text-[#4b3a2d] leading-loose">
+                    <p class="text-lg">ב-WanderWood אני מפתחת פתרונות עץ לצלמות ויוצרות שמחפשות שילוב של אסתטיקה, ניידות ועמידות בעבודה אמיתית בשטח.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="about-value">
+                            <h3 class="font-bold mb-1">פתרון חכם לשטח</h3>
+                            <p class="text-sm text-[#6b4e38]">מנגנוני קיפול מהירים ותכנון קל לנשיאה.</p>
+                        </div>
+                        <div class="about-value">
+                            <h3 class="font-bold mb-1">איכות חומר וגימור</h3>
+                            <p class="text-sm text-[#6b4e38]">עץ מלא נבחר, צביעה עמידה ובקרת איכות קפדנית.</p>
+                        </div>
+                        <div class="about-value">
+                            <h3 class="font-bold mb-1">התאמה אישית מלאה</h3>
+                            <p class="text-sm text-[#6b4e38]">כל הזמנה נבנית לפי מידה, צורך וסגנון עבודה.</p>
+                        </div>
+                        <div class="about-value">
+                            <h3 class="font-bold mb-1">ליווי אישי</h3>
+                            <p class="text-sm text-[#6b4e38]">מהסקיצה ועד מוצר סופי שמשרת אותך לאורך זמן.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 grid grid-rows-2 gap-4">
+                    <img class="about-image" data-aos="zoom-in" src="https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=900&q=80" alt="נגרות בעץ">
+                    <img class="about-image" data-aos="zoom-in" data-aos-delay="120" src="https://images.unsplash.com/photo-1452160392676-5e712e73f522?auto=format&fit=crop&w=900&q=80" alt="מלאכת יד בעץ">
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -494,7 +512,7 @@
                     : '';
 
                 return `
-                    <div class="wood-card p-4" data-aos="zoom-in" data-product-index="${index}">
+                    <div class="wood-card p-4 cursor-pointer" data-aos="zoom-in" data-product-index="${index}">
                         <div class="gallery-container mb-5 open-product-modal cursor-pointer" data-product-index="${index}">
                             ${imagesHtml}
                             <div class="dots-container">${dotsHtml}</div>
@@ -522,12 +540,22 @@
     }
 
     function bindProductEvents() {
+        document.querySelectorAll('.wood-card').forEach((card) => {
+            card.addEventListener('click', () => openModal(Number(card.dataset.productIndex)));
+        });
+
         document.querySelectorAll('.open-product-modal').forEach((element) => {
-            element.addEventListener('click', () => openModal(Number(element.dataset.productIndex)));
+            element.addEventListener('click', (event) => {
+                event.stopPropagation();
+                openModal(Number(element.dataset.productIndex));
+            });
         });
 
         document.querySelectorAll('.add-to-order').forEach((button) => {
-            button.addEventListener('click', () => addProductToOrder(Number(button.dataset.productIndex)));
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                addProductToOrder(Number(button.dataset.productIndex));
+            });
         });
     }
 
@@ -1163,184 +1191,46 @@
             .replace(/'/g, '&#39;');
     }
 
-    async function loadImageDimensions(url) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve({
-                url,
-                width: img.naturalWidth || 1200,
-                height: img.naturalHeight || 1200
-            });
-            img.onerror = () => resolve({ url, width: 1200, height: 1200 });
-            img.src = url;
-        });
-    }
-
-    function arrangeImagesCenteredMasonry(images) {
-        if (!images.length) return { center: null, left: [], right: [] };
-        const normalized = images.map((image) => ({
-            ...image,
-            ratio: image.height / image.width
-        }));
-
-        const portraits = normalized.filter((img) => img.ratio > 1.12);
-        const landscapes = normalized.filter((img) => img.ratio < 0.88);
-        const squares = normalized.filter((img) => img.ratio >= 0.88 && img.ratio <= 1.12);
-
-        const center = portraits.shift() || squares.shift() || landscapes.shift() || normalized[0];
-        const rest = [...portraits, ...squares, ...landscapes].filter((img) => img.url !== center.url);
-
-        const left = [];
-        const right = [];
-        let leftWeight = 0;
-        let rightWeight = 0;
-
-        rest.forEach((img) => {
-            const visualWeight = img.ratio > 1.12 ? 1.2 : (img.ratio < 0.88 ? 0.9 : 1);
-            if (leftWeight <= rightWeight) {
-                left.push(img);
-                leftWeight += visualWeight;
-            } else {
-                right.push(img);
-                rightWeight += visualWeight;
-            }
-        });
-
-        return { center, left, right };
-    }
-
-    async function renderProductLayout(product) {
-        const name = escapeHtml(product.name);
-        const price = `₪${product.price}`;
-        const description = escapeHtml(product.description || 'ללא תיאור נוסף').replace(/\n/g, '<br>');
-        const images = (product.images && product.images.length ? product.images : ['https://placehold.co/900x900?text=WanderWood']);
-        const measuredImages = await Promise.all(images.map((img) => loadImageDimensions(img)));
-        const collage = arrangeImagesCenteredMasonry(measuredImages);
-
-        const renderImage = (img, idx, columnType) => {
-            const baseAngle = columnType === 'center' ? 0 : (columnType === 'left' ? -1 : 1);
-            const jitter = ((idx % 3) - 1) * 1.15;
-            const rotation = baseAngle + jitter;
-            const overlap = idx === 0 ? 0 : 2.3;
-            return `
-            <figure class="masonry-image-wrap" style="--tilt:${rotation}deg; --overlap:${overlap}mm;">
-                <img src="${escapeHtml(img.url)}" alt="${name} תמונה ${idx + 1}" class="masonry-image" loading="eager">
-            </figure>
-        `;
-        };
-
-        return `
-            <article class="catalog-product">
-                <div class="catalog-text-block">
-                    <h2 class="catalog-title">${name}</h2>
-                    <p class="catalog-price">${price}</p>
-                    <p class="catalog-description">${description}</p>
-                </div>
-                <div class="masonry-collage">
-                    <div class="masonry-column side-column">
-                        ${collage.left.map((img, i) => renderImage(img, i, 'left')).join('')}
-                    </div>
-                    <div class="masonry-column center-column">
-                        ${collage.center ? renderImage(collage.center, 0, 'center') : ''}
-                    </div>
-                    <div class="masonry-column side-column">
-                        ${collage.right.map((img, i) => renderImage(img, i, 'right')).join('')}
-                    </div>
-                </div>
-            </article>
-        `;
-    }
-
-    async function generateCatalogPdf() {
-        const button = document.getElementById('download-catalog-btn');
-        if (button.disabled) return;
-
-        if (!productCatalog.length) {
-            alert('עדיין אין מוצרים זמינים להורדה.');
-            return;
-        }
-
-        button.disabled = true;
-        const defaultText = button.textContent;
-        button.textContent = 'מכין קטלוג להדפסה...';
-
-        try {
-            const now = new Date();
-            const website = 'shaulnac.github.io/WANDERWOOD';
-            const contactEmail = 'L0556783085@GMAIL.COM';
-            const printableProducts = await Promise.all(productCatalog.map((product) => renderProductLayout(product)));
-            const pages = [];
-            for (let i = 0; i < printableProducts.length; i += 2) {
-                pages.push(`
-                    <section class="catalog-page">
-                        ${printableProducts[i] || ''}
-                        ${printableProducts[i + 1] || '<div class="catalog-product empty-slot"></div>'}
-                        <footer class="page-footer">טלפון: ${contactPhone} | אימייל: ${contactEmail} | אתר: ${website}</footer>
-                    </section>
-                `);
-            }
-
-            const dateText = now.toLocaleDateString('he-IL', { year: 'numeric', month: 'long', day: 'numeric' });
-            const templateResponse = await fetch('catalog-template.html');
-            if (!templateResponse.ok) throw new Error('Failed to load catalog template');
-            const templateHtml = await templateResponse.text();
-            const printHtml = templateHtml
-                .replace('__DATE__', dateText)
-                .replace('__CONTACT_PHONE__', contactPhone)
-                .replace('__CONTACT_EMAIL__', contactEmail)
-                .replace('__WEBSITE__', website)
-                .replace('__PAGES__', pages.join(''));
-
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                throw new Error('Popup blocked');
-            }
-            printWindow.document.open();
-            printWindow.document.write(printHtml);
-            printWindow.document.close();
-
-            const waitForImages = () => {
-                const images = Array.from(printWindow.document.images);
-                if (!images.length) return Promise.resolve();
-                return Promise.all(images.map((img) => new Promise((resolve) => {
-                    if (img.complete) return resolve();
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                })));
-            };
-
-            await waitForImages();
-            setTimeout(() => {
-                printWindow.focus();
-                printWindow.print();
-            }, 450);
-        } catch (error) {
-            console.error('שגיאה ביצירת PDF:', error);
-            alert('אירעה שגיאה ביצירת חלון ההדפסה. ודאו שחלונות קופצים מאופשרים ונסו שוב.');
-        } finally {
-            button.disabled = false;
-            button.textContent = defaultText;
-        }
-    }
-
     bindSmoothScroll();
     bindModalEvents();
     bindOrderControls();
     bindCustomProductModal();
     bindFormValidation();
     bindSuccessModal();
+
+    function syncTopNavState() {
+        const nav = document.getElementById('top-nav');
+        if (!nav) return;
+        nav.classList.toggle('scrolled', window.scrollY > 36);
+    }
+
+    function setTopNavBackgroundFromHero(url) {
+        const nav = document.getElementById('top-nav');
+        if (!nav || !url) return;
+        nav.style.setProperty('--nav-bg-image', `url('${url}')`);
+    }
+
     function startHeroBackgrounds() {
         const slides = Array.from(document.querySelectorAll('[data-hero-slide]'));
         if (slides.length <= 1) return;
+        const getSlideUrl = (slide) => {
+            const bg = slide.style.backgroundImage || '';
+            const match = bg.match(/url\(["']?(.*?)["']?\)/);
+            return match ? match[1] : '';
+        };
         let active = 0;
+        setTopNavBackgroundFromHero(getSlideUrl(slides[active]));
         setInterval(() => {
             slides[active].classList.remove('active');
             active = (active + 1) % slides.length;
             slides[active].classList.add('active');
+            setTopNavBackgroundFromHero(getSlideUrl(slides[active]));
         }, 5000);
     }
-    document.getElementById('download-catalog-btn').addEventListener('click', generateCatalogPdf);
+
     startHeroBackgrounds();
+    syncTopNavState();
+    window.addEventListener('scroll', syncTopNavState, { passive: true });
     loadCatalog();
     window.addEventListener('popstate', () => {
         const productId = new URLSearchParams(window.location.search).get('product');
