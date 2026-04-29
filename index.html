@@ -406,7 +406,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch modal-content-grid">
             <div>
                 <div class="modal-image-frame">
-                    <img id="modal-main-image" class="modal-image" src="" alt="תצוגת מוצר">
+                    <img id="modal-main-image" class="modal-image cursor-zoom-in" src="" alt="תצוגת מוצר">
                     <button id="modal-prev" class="modal-side-nav prev" aria-label="תמונה קודמת">‹</button>
                     <button id="modal-next" class="modal-side-nav next" aria-label="תמונה הבאה">›</button>
                 </div>
@@ -1187,6 +1187,11 @@
         document.getElementById('modal-prev').addEventListener('click', () => changeModalImage(-1));
         document.getElementById('modal-next').addEventListener('click', () => changeModalImage(1));
         document.getElementById('modal-share').addEventListener('click', shareCurrentProduct);
+        document.getElementById('modal-main-image').addEventListener('click', () => {
+            const mainImage = document.getElementById('modal-main-image');
+            if (!mainImage?.src || !window.openImagePreview) return;
+            window.openImagePreview(mainImage.src, mainImage.alt || 'תצוגת מוצר מוגדלת');
+        });
         document.getElementById('modal-add').addEventListener('click', () => {
             if (modalProductIndex >= 0) {
                 addProductToOrder(modalProductIndex);
@@ -1294,12 +1299,18 @@
             previewImage.src = '';
         };
 
+        window.openImagePreview = (src, alt = 'תצוגה מוגדלת') => {
+            if (!src) return;
+            previewImage.src = src;
+            previewImage.alt = alt;
+            previewModal.classList.remove('hidden');
+            previewModal.classList.add('flex');
+        };
+
         testimonialsGrid.addEventListener('click', (event) => {
             const thumb = event.target.closest('.testimonial-thumb');
             if (!thumb) return;
-            previewImage.src = thumb.src;
-            previewModal.classList.remove('hidden');
-            previewModal.classList.add('flex');
+            window.openImagePreview(thumb.src, thumb.alt || 'תמונת המלצה מוגדלת');
         });
 
         closeButton.addEventListener('click', closePreview);
