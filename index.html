@@ -353,6 +353,16 @@
     </div>
 </section>
 
+<section id="testimonials" class="py-24 px-6 md:px-12 bg-[#fcfaf7]">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-14" data-aos="fade-up">
+            <h2 class="text-4xl font-bold text-[#3d2b1f]">צלמות ממליצות</h2>
+            <p class="mt-3 text-[#8a653f]">החוויה של הלקוחות שלנו מהעבודה עם WanderWood.</p>
+        </div>
+        <div id="testimonials-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-8"></div>
+    </div>
+</section>
+
 <footer class="footer-brand bg-[#3d2b1f] text-white py-12 px-10 text-center">
     <img src="favicon.png" alt="WanderWood icon" class="footer-bg-icon">
     <div class="footer-content">
@@ -449,6 +459,7 @@
     AOS.init({ duration: 1000, once: true });
 
     const TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtyoe510f5vB5u1jW6b_VdZaCl2N_5IMO3i07jQB6P7YOtadif2C2otzqmWS5o34E-pIXDHVfX0fdf/pub?output=tsv';
+    const TESTIMONIALS_TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtyoe510f5vB5u1jW6b_VdZaCl2N_5IMO3i07jQB6P7YOtadif2C2otzqmWS5o34E-pIXDHVfX0fdf/pub?gid=1394850774&single=true&output=tsv';
 
     const productCatalog = [];
     const orderState = new Map();
@@ -1191,6 +1202,47 @@
             .replace(/'/g, '&#39;');
     }
 
+    async function loadTestimonials() {
+        const testimonialsGrid = document.getElementById('testimonials-grid');
+        if (!testimonialsGrid) return;
+
+        try {
+            const response = await fetch(TESTIMONIALS_TSV_URL);
+            const rawData = await response.text();
+            const rows = rawData.split('\n').slice(1).filter(Boolean);
+
+            const testimonials = rows
+                .map((row) => row.split('\t'))
+                .filter((columns) => columns.length >= 3)
+                .map(([nameRaw, contactRaw, contentRaw]) => ({
+                    name: (nameRaw || '').trim(),
+                    contact: (contactRaw || '').trim(),
+                    content: (contentRaw || '').trim()
+                }))
+                .filter((item) => item.content);
+
+            if (!testimonials.length) {
+                testimonialsGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">עדיין אין המלצות להצגה.</p>';
+                return;
+            }
+
+            testimonialsGrid.innerHTML = testimonials.map((item) => `
+                <article class="bg-white border border-[#efe2d3] rounded-2xl p-6 shadow-[0_15px_30px_rgba(61,43,31,0.08)] text-right" data-aos="fade-up">
+                    <div class="text-4xl leading-none text-[#bc986a] mb-4">“</div>
+                    <p class="text-[#5a4331] italic leading-loose mb-6">${escapeHtml(item.content)}</p>
+                    <div class="pt-4 border-t border-[#eee2d4]">
+                        <p class="font-bold text-[#3d2b1f]">${escapeHtml(item.name || 'לקוחה')}</p>
+                        <p class="text-sm text-[#8a653f]">${escapeHtml(item.contact || '')}</p>
+                    </div>
+                </article>
+            `).join('');
+            AOS.refresh();
+        } catch (error) {
+            console.error('שגיאה בטעינת המלצות:', error);
+            testimonialsGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">לא ניתן לטעון המלצות כרגע.</p>';
+        }
+    }
+
     bindSmoothScroll();
     bindModalEvents();
     bindOrderControls();
@@ -1218,7 +1270,7 @@
     startHeroBackgrounds();
     syncTopNavState();
     window.addEventListener('scroll', syncTopNavState, { passive: true });
-    loadCatalog();
+    loadCatalog().finally(loadTestimonials);
     window.addEventListener('popstate', () => {
         const productId = new URLSearchParams(window.location.search).get('product');
         const modalIsOpen = document.getElementById('product-modal').classList.contains('flex');
