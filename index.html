@@ -311,6 +311,14 @@
     </div>
 </section>
 
+<div id="testimonial-image-modal" class="fixed inset-0 z-[130] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="relative max-w-4xl w-full flex items-center justify-center">
+        <button id="close-testimonial-image-modal" type="button" class="absolute -top-12 left-0 modal-close-btn" aria-label="סגור תצוגת תמונה">&times;</button>
+        <img id="testimonial-preview-image" src="" alt="תמונת המלצה מוגדלת" class="max-h-[82vh] w-auto max-w-full rounded-2xl shadow-2xl border border-white/40">
+    </div>
+</div>
+
 <section id="order-form" class="py-24 bg-white">
     <div class="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         <div class="bg-[#fcfaf7] p-10 rounded-3xl shadow-2xl border border-gray-100 relative overflow-visible" data-aos="fade-right">
@@ -1253,9 +1261,9 @@
                         <p class="text-sm text-[#8a653f] text-right">${escapeHtml(item.contact || '')}</p>
                     </div>
                     ${item.images.length ? `
-                        <div class="flex justify-end gap-2 flex-wrap mb-4">
+                        <div class="flex justify-start gap-2 flex-wrap mb-4">
                             ${item.images.map((img, idx) => `
-                                <img src="${escapeHtml(img)}" alt="תמונת המלצה ${idx + 1}" class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-2xl border border-[#ecdcc8] shadow-sm">
+                                <img src="${escapeHtml(img)}" alt="תמונת המלצה ${idx + 1}" class="testimonial-thumb w-[84px] h-[84px] sm:w-[96px] sm:h-[96px] object-cover rounded-2xl border border-[#ecdcc8] shadow-sm cursor-zoom-in">
                             `).join('')}
                         </div>
                     ` : ''}
@@ -1273,12 +1281,43 @@
         }
     }
 
+    function bindTestimonialsPreview() {
+        const testimonialsGrid = document.getElementById('testimonials-grid');
+        const previewModal = document.getElementById('testimonial-image-modal');
+        const previewImage = document.getElementById('testimonial-preview-image');
+        const closeButton = document.getElementById('close-testimonial-image-modal');
+        if (!testimonialsGrid || !previewModal || !previewImage || !closeButton) return;
+
+        const closePreview = () => {
+            previewModal.classList.add('hidden');
+            previewModal.classList.remove('flex');
+            previewImage.src = '';
+        };
+
+        testimonialsGrid.addEventListener('click', (event) => {
+            const thumb = event.target.closest('.testimonial-thumb');
+            if (!thumb) return;
+            previewImage.src = thumb.src;
+            previewModal.classList.remove('hidden');
+            previewModal.classList.add('flex');
+        });
+
+        closeButton.addEventListener('click', closePreview);
+        previewModal.querySelector('.absolute')?.addEventListener('click', closePreview);
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            if (!previewModal.classList.contains('flex')) return;
+            closePreview();
+        });
+    }
+
     bindSmoothScroll();
     bindModalEvents();
     bindOrderControls();
     bindCustomProductModal();
     bindFormValidation();
     bindSuccessModal();
+    bindTestimonialsPreview();
 
     function syncTopNavState() {
         const nav = document.getElementById('top-nav');
